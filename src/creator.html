@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+    <title>DeskBuddy</title>
+    <link rel="stylesheet" href="creator.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#top" aria-label="DeskBuddy home">
+          <span class="brand-mark" aria-hidden="true">✦</span>
+          <span>DeskBuddy</span>
+        </a>
+        <p class="privacy-note"><span aria-hidden="true">⌁</span> Your sprites stay on this device</p>
+      </header>
+
+      <section id="top" class="hero" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <p class="eyebrow">YOUR LITTLE DESKTOP COMPANION</p>
+          <h1 id="page-title">Build a sprite buddy that moves with your own animation.</h1>
+          <p class="intro">Import a clean sprite sheet or draw each frame yourself. DeskBuddy plays your idle frames while it rests and your walk frames while it glides around the desktop.</p>
+        </div>
+        <div class="sparkles" aria-hidden="true"><span>✦</span><span>✧</span><span>✦</span></div>
+      </section>
+
+      <section class="maker-grid" aria-label="Create a new DeskBuddy">
+        <form id="pet-form" class="form-card" novalidate>
+          <div class="section-heading">
+            <p class="step">01</p>
+            <h2>Make a buddy</h2>
+          </div>
+
+          <div class="mode-switch" aria-label="Choose a creation method">
+            <button class="mode-button active" type="button" data-creation-mode="import" aria-pressed="true">Import sprite sheet</button>
+            <button class="mode-button" type="button" data-creation-mode="draw" aria-pressed="false">Draw your own</button>
+          </div>
+
+          <section id="import-panel" class="creation-panel" aria-labelledby="import-title">
+            <h3 id="import-title" class="panel-title">Use a transparent PNG sprite sheet</h3>
+            <p class="panel-copy">Use a clean transparent sheet with equal cells. After upload, pick the cell grid that keeps one complete character in each box, then choose each animation's row and start column.</p>
+            <label class="upload-zone" id="upload-zone" for="image-input">
+              <span class="upload-icon" aria-hidden="true">↥</span>
+              <span class="upload-title">Choose a transparent sprite-sheet PNG</span>
+              <span class="upload-caption">No white background · up to 5 MB</span>
+              <input id="image-input" name="image" type="file" accept="image/png" />
+            </label>
+            <div id="sheet-info" class="sheet-info" hidden>
+              <p id="sheet-dimensions" class="sheet-dimensions"></p>
+              <div id="grid-choices" class="grid-choices" aria-label="Choose a square sprite-cell grid"></div>
+            </div>
+            <div class="sheet-settings" aria-label="Sprite sheet layout">
+              <label>Columns <input id="sheet-columns" type="number" min="1" max="32" value="4" inputmode="numeric" /></label>
+              <label>Rows <input id="sheet-rows" type="number" min="1" max="32" value="2" inputmode="numeric" /></label>
+              <label>Idle row <input id="idle-row" type="number" min="1" max="32" value="1" inputmode="numeric" /></label>
+              <label>Idle starts at <input id="idle-start" type="number" min="1" max="32" value="1" inputmode="numeric" /></label>
+              <label>Idle frames <input id="idle-frames" type="number" min="1" max="8" value="4" inputmode="numeric" /></label>
+              <label>Walk row <input id="walk-row" type="number" min="1" max="32" value="2" inputmode="numeric" /></label>
+              <label>Walk starts at <input id="walk-start" type="number" min="1" max="32" value="1" inputmode="numeric" /></label>
+              <label>Walk frames <input id="walk-frames" type="number" min="1" max="8" value="4" inputmode="numeric" /></label>
+            </div>
+            <p id="sheet-status" class="panel-status">Tip: use the same row for idle and walk if your sheet only has one animation.</p>
+          </section>
+
+          <section id="draw-panel" class="creation-panel draw-panel" aria-labelledby="draw-title" hidden>
+            <h3 id="draw-title" class="panel-title">Draw your animation frames</h3>
+            <p class="panel-copy">Make at least one visible idle frame and one visible walk frame. Add more frames to make a loop.</p>
+            <div class="draw-toolbar" aria-label="Drawing controls">
+              <label>Color <input id="brush-color" type="color" value="#5c4b88" /></label>
+              <label>Brush <input id="brush-size" type="range" min="1" max="32" value="8" /><output id="brush-size-output" for="brush-size">8 px</output></label>
+              <label class="onion-toggle"><input id="onion-toggle" type="checkbox" checked /> Previous frame</label>
+              <label>Onion opacity <input id="onion-opacity" type="range" min="10" max="70" value="32" /><output id="onion-opacity-output" for="onion-opacity">32%</output></label>
+              <button id="brush-tool" class="tool-button active" type="button" aria-pressed="true">Brush</button>
+              <button id="eraser-tool" class="tool-button" type="button" aria-pressed="false">Eraser</button>
+              <button id="clear-frame" class="tool-button danger" type="button">Clear frame</button>
+            </div>
+            <div class="draw-workspace">
+              <div class="canvas-wrap"><img id="onion-skin" alt="" aria-hidden="true" hidden /><canvas id="sprite-canvas" width="160" height="160" aria-label="Sprite drawing canvas"></canvas></div>
+              <div class="frame-editor">
+                <div class="clip-switch" aria-label="Animation clip">
+                  <button type="button" class="clip-button active" data-clip="idle" aria-pressed="true">Idle</button>
+                  <button type="button" class="clip-button" data-clip="walk" aria-pressed="false">Walk</button>
+                </div>
+                <p id="draw-frame-status" class="draw-frame-status">Idle · frame 1 of 1</p>
+                <div id="draw-frame-list" class="draw-frame-list" aria-label="Animation frames"></div>
+                <div class="frame-actions">
+                  <button id="previous-frame" type="button" class="tool-button">← Previous</button>
+                  <button id="next-frame" type="button" class="tool-button">Next →</button>
+                  <button id="add-frame" type="button" class="tool-button">+ Add frame</button>
+                  <button id="delete-frame" type="button" class="tool-button danger">Delete</button>
+                </div>
+              </div>
+            </div>
+            <p class="panel-status">The drawing canvas starts transparent, so your finished buddy will have no white box around it.</p>
+          </section>
+
+          <label class="field-label" for="name-input">Name</label>
+          <input id="name-input" class="text-field" name="name" maxlength="36" placeholder="e.g. Mochi" autocomplete="off" />
+
+          <div class="range-row">
+            <label class="field-label" for="size-input">Size <output id="size-output" for="size-input">156 px</output></label>
+            <input id="size-input" name="size" type="range" min="96" max="260" value="156" />
+          </div>
+
+          <div class="motion-summary"><span aria-hidden="true">↝</span><span><strong>Sprite drift is on</strong><small>Your buddy plays its walk frames while it smoothly slides around the desktop.</small></span></div>
+
+          <p id="form-message" class="form-message" role="status" aria-live="polite"></p>
+          <button id="create-button" class="primary-button" type="submit">Create &amp; launch <span aria-hidden="true">→</span></button>
+        </form>
+
+        <aside class="preview-card" aria-label="Buddy preview">
+          <div class="section-heading">
+            <p class="step">02</p>
+            <h2>Say hello</h2>
+          </div>
+          <div class="preview-stage">
+            <span class="orbit orbit-one" aria-hidden="true"></span>
+            <span class="orbit orbit-two" aria-hidden="true"></span>
+            <div id="preview-pet" class="preview-pet preview-placeholder">
+              <img id="preview-image" alt="" hidden />
+              <span id="preview-symbol" aria-hidden="true">✦</span>
+            </div>
+            <span class="preview-shadow" aria-hidden="true"></span>
+          </div>
+          <p id="preview-name" class="preview-name">Your new buddy</p>
+          <p class="preview-copy">Only your transparent sprite appears on the desktop—no frame, buttons, or white box.</p>
+          <div class="tip"><span aria-hidden="true">↝</span><span>Drag it anywhere. It plays your walk animation while moving.</span></div>
+        </aside>
+      </section>
+
+      <section class="collection" aria-labelledby="collection-title">
+        <div class="collection-heading">
+          <div>
+            <p class="eyebrow">YOUR COLLECTION</p>
+            <h2 id="collection-title">Saved buddies</h2>
+          </div>
+          <p id="buddy-count" class="count-label">0 buddies</p>
+        </div>
+        <div id="empty-state" class="empty-state">
+          <span aria-hidden="true">✧</span>
+          <p>Your first buddy will appear here.</p>
+        </div>
+        <div id="pet-list" class="pet-list" aria-live="polite"></div>
+      </section>
+    </main>
+    <script src="creator.js"></script>
+  </body>
+</html>

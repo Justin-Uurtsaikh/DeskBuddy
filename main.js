@@ -1,0 +1,861 @@
+const { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, screen, session, Tray } = require('electron');
+const crypto = require('crypto');
+const fs = require('fs/promises');
+const path = require('path');
+
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const MAX_IMAGE_PIXELS = 16_000_000;
+const MAX_FRAMES_PER_CLIP = 8;
+const MAX_ANIMATION_BYTES = 12 * 1024 * 1024;
+const MAX_PETS = 30;
+const PET_ID = /^pet-[a-f0-9-]{20,}$/i;
+
+let creatorWindow = null;
+let tray = null;
+let quitting = false;
+let corruptStoreBackup = null;
+const petWindows = new Map();
+const openingPetWindows = new Map();
+const dragOrigins = new Map();
+const glideTimers = new Map();
+const positionTimers = new Map();
+const recentWanderDirections = new Map();
+const WANDER_DIRECTIONS = [
+  { key: 'east', x: 1, y: 0 },
+  { key: 'west', x: -1, y: 0 },
+  { key: 'south', x: 0, y: 1 },
+  { key: 'north', x: 0, y: -1 },
+  { key: 'south-east', x: 0.78, y: 0.62 },
+  { key: 'north-west', x: -0.78, y: -0.62 },
+  { key: 'south-west', x: -0.78, y: 0.62 },
+  { key: 'north-east', x: 0.78, y: -0.62 },
+];
+let wanderTurn = 0;
+let nextWanderStartAt = 0;
+let writeQueue = Promise.resolve();
+
+function appStorePath() {
+  return path.join(app.getPath('userData'), 'deskbuddy-pets.json');
+}
+
+function petAssetDirectory() {
+  return path.join(app.getPath('userData'), 'pets');
+}
+
+function cleanAnimationFiles(value, petId) {
+  if (!value || typeof value !== 'object') return null;
+  const clips = {};
+  for (const clip of ['idle', 'walk']) {
+    const files = value[clip];
+    if (!Array.isArray(files) || files.length < 1 || files.length > MAX_FRAMES_PER_CLIP) return null;
+    if (files.some((file) => (
+      typeof file !== 'string'
+      || path.basename(file) !== file
+      || !file.startsWith(`${petId}-${clip}-`)
+      || !file.endsWith('.png')
+    ))) return null;
+    clips[clip] = files;
+  }
+  return clips;
+}
+
+function cleanStore(value) {
+  if (!value || !Array.isArray(value.pets)) throw new Error('Saved buddy data is invalid.');
+  return {
+    version: 2,
+    pets: value.pets
+      .filter((pet) => (
+        pet
+        && PET_ID.test(pet.id)
+        && typeof pet.imageFile === 'string'
+        && path.basename(pet.imageFile) === pet.imageFile
+      ))
+      .map((pet) => {
+        const cleaned = { ...pet };
+        const animationFiles = cleanAnimationFiles(pet.animationFiles, pet.id);
+        if (animationFiles) cleaned.animationFiles = animationFiles;
+        else delete cleaned.animationFiles;
+        return cleaned;
+      }),
+  };
+}
+
+async function ensureStore() {
+  await fs.mkdir(petAssetDirectory(), { recursive: true });
+  try {
+    await fs.access(appStorePath());
+  } catch {
+    await fs.writeFile(appStorePath(), JSON.stringify({ version: 2, pets: [] }, null, 2), 'utf8');
+  }
+}
+
+async function readStore() {
+  try {
+    return cleanStore(JSON.parse(await fs.readFile(appStorePath(), 'utf8')));
+  } catch (error) {
+    if (error?.code === 'ENOENT') return { version: 2, pets: [] };
+    if (!corruptStoreBackup) {
+      corruptStoreBackup = `${appStorePath()}.backup-${Date.now()}.json`;
+      await fs.copyFile(appStorePath(), corruptStoreBackup).catch(() => undefined);
+    }
+    throw new Error('DeskBuddy could not read the saved-buddies file. A backup was kept instead of overwriting it.');
+  }
+}
+
+async function writeStore(store) {
+  const target = appStorePath();
+  const temporary = `${target}.tmp`;
+  await fs.writeFile(temporary, JSON.stringify(store, null, 2), 'utf8');
+  await fs.rename(temporary, target);
+}
+
+function changeStore(change) {
+  const task = writeQueue.then(async () => {
+    const store = await readStore();
+    const result = await change(store);
+    await writeStore(store);
+    return result;
+  });
+  writeQueue = task.catch(() => undefined);
+  return task;
+}
+
+function validPetId(id) {
+  return typeof id === 'string' && PET_ID.test(id);
+}
+
+function clamp(value, minimum, maximum) {
+  return Math.min(Math.max(value, minimum), maximum);
+}
+
+function numberInRange(value, minimum, maximum, fallback) {
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.round(clamp(number, minimum, maximum)) : fallback;
+}
+
+function cleanName(value) {
+  const name = String(value || '').replace(/[\r\n\t]/g, ' ').replace(/\s+/g, ' ').trim();
+  return name.slice(0, 36) || 'New buddy';
+}
+
+function imageExtension(mimeType) {
+  return { 'image/png': 'png' }[mimeType];
+}
+
+function pngHasTransparencyChannel(buffer) {
+  const colorType = buffer[25];
+  if (colorType === 4 || colorType === 6) return true;
+
+  let offset = 8;
+  while (offset + 12 <= buffer.length) {
+    const length = buffer.readUInt32BE(offset);
+    const type = buffer.subarray(offset + 4, offset + 8).toString('ascii');
+    if (offset + 12 + length > buffer.length) break;
+    if (type === 'tRNS' && length > 0) return true;
+    if (type === 'IEND') break;
+    offset += 12 + length;
+  }
+  return false;
+}
+
+function imageDetails(buffer) {
+  if (buffer.length >= 26 && buffer.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])) && buffer.subarray(12, 16).toString('ascii') === 'IHDR') {
+    return {
+      mimeType: 'image/png',
+      width: buffer.readUInt32BE(16),
+      height: buffer.readUInt32BE(20),
+      hasTransparencyChannel: pngHasTransparencyChannel(buffer),
+    };
+  }
+
+  throw new Error('DeskBuddy could not verify that image. Choose a transparent PNG file.');
+}
+
+function nativeImagePixelInfo(image) {
+  const bitmap = image.toBitmap();
+  let hasTransparency = false;
+  let hasVisiblePixels = false;
+  for (let index = 3; index < bitmap.length; index += 4) {
+    if (bitmap[index] < 250) hasTransparency = true;
+    if (bitmap[index] > 4) hasVisiblePixels = true;
+    if (hasTransparency && hasVisiblePixels) break;
+  }
+  return { hasTransparency, hasVisiblePixels };
+}
+
+function decodeImage(dataUrl) {
+  if (typeof dataUrl !== 'string') throw new Error('Choose an image before creating a buddy.');
+  if (dataUrl.length > Math.ceil(MAX_IMAGE_BYTES * 4 / 3) + 96) {
+    throw new Error('Choose an image smaller than 5 MB.');
+  }
+  const match = /^data:(image\/png);base64,([A-Za-z0-9+/=\r\n]+)$/i.exec(dataUrl);
+  if (!match) throw new Error('DeskBuddy accepts transparent PNG images only.');
+
+  const encodedImage = match[2].replace(/[\r\n]/g, '');
+  if (encodedImage.length > Math.ceil(MAX_IMAGE_BYTES * 4 / 3) + 8) {
+    throw new Error('Choose an image smaller than 5 MB.');
+  }
+  const buffer = Buffer.from(encodedImage, 'base64');
+  if (!buffer.length || buffer.length > MAX_IMAGE_BYTES) {
+    throw new Error('Choose an image smaller than 5 MB.');
+  }
+
+  const details = imageDetails(buffer);
+  if (details.mimeType !== 'image/png' || !details.hasTransparencyChannel) {
+    throw new Error('Use a PNG with a transparent background. A white-background PNG will still look like a box.');
+  }
+  if (!details.width || !details.height || details.width * details.height > MAX_IMAGE_PIXELS) {
+    throw new Error('Choose a valid image smaller than 16 megapixels.');
+  }
+
+  const native = nativeImage.createFromBuffer(buffer);
+  const { width, height } = native.getSize();
+  if (!width || !height || width * height > MAX_IMAGE_PIXELS) {
+    throw new Error('Choose a valid image smaller than 16 megapixels.');
+  }
+  const pixelInfo = nativeImagePixelInfo(native);
+  if (!pixelInfo.hasTransparency) {
+    throw new Error('Use a PNG with a transparent background. A white-background PNG will still look like a box.');
+  }
+  if (!pixelInfo.hasVisiblePixels) throw new Error('That sprite frame is blank. Draw or import a visible character.');
+  return { buffer, mimeType: details.mimeType, width, height, hasTransparencyChannel: details.hasTransparencyChannel };
+}
+
+function decodeAnimationClip(value, label) {
+  if (!Array.isArray(value) || value.length < 1 || value.length > MAX_FRAMES_PER_CLIP) {
+    throw new Error(`${label} needs between 1 and ${MAX_FRAMES_PER_CLIP} transparent PNG frames.`);
+  }
+  return value.map((frame) => decodeImage(frame));
+}
+
+function decodeAnimations(input) {
+  const rawAnimations = input?.animations;
+  if (!rawAnimations || typeof rawAnimations !== 'object') {
+    const image = decodeImage(input?.imageData);
+    return { idle: [image], walk: [image] };
+  }
+
+  const animations = {
+    idle: decodeAnimationClip(rawAnimations.idle, 'Idle animation'),
+    walk: decodeAnimationClip(rawAnimations.walk, 'Walk animation'),
+  };
+  const totalBytes = [...animations.idle, ...animations.walk]
+    .reduce((total, frame) => total + frame.buffer.length, 0);
+  if (totalBytes > MAX_ANIMATION_BYTES) {
+    throw new Error('Keep all animation frames under 12 MB total.');
+  }
+  return animations;
+}
+
+async function findPet(id) {
+  if (!validPetId(id)) throw new Error('That buddy could not be found.');
+  const store = await readStore();
+  const pet = store.pets.find((item) => item.id === id);
+  if (!pet) throw new Error('That buddy could not be found.');
+  return pet;
+}
+
+async function imageForPet(pet, thumbnail = false) {
+  return imageForAsset(pet.imageFile, pet.mimeType, thumbnail);
+}
+
+async function imageForAsset(fileName, mimeType, thumbnail = false) {
+  const safeFileName = path.basename(fileName);
+  const imagePath = path.join(petAssetDirectory(), safeFileName);
+  const data = await fs.readFile(imagePath);
+  if (thumbnail) {
+    const image = nativeImage.createFromBuffer(data);
+    if (!image.isEmpty()) return image.resize({ width: 160, height: 160, quality: 'good' }).toDataURL();
+  }
+  return `data:${mimeType};base64,${data.toString('base64')}`;
+}
+
+function clipFilesForPet(pet, clip) {
+  const files = pet.animationFiles?.[clip];
+  return Array.isArray(files) && files.length > 0 ? files : [pet.imageFile];
+}
+
+async function animationImagesForPet(pet) {
+  const result = {};
+  for (const clip of ['idle', 'walk']) {
+    result[clip] = await Promise.all(
+      clipFilesForPet(pet, clip).map((fileName) => imageForAsset(fileName, pet.mimeType)),
+    );
+  }
+  return result;
+}
+
+async function publicPet(pet, imageMode = 'full') {
+  const result = {
+    id: pet.id,
+    name: pet.name,
+    size: numberInRange(pet.size, 96, 260, 156),
+    motion: pet.motion === 'still' ? 'still' : 'wander',
+    createdAt: pet.createdAt,
+  };
+  if (imageMode !== 'none') {
+    try {
+      result.imageData = await imageForPet(pet, imageMode === 'thumbnail');
+    } catch {
+      result.imageData = null;
+    }
+  }
+  if (imageMode === 'full') {
+    try {
+      result.animations = await animationImagesForPet(pet);
+    } catch {
+      result.animations = result.imageData
+        ? { idle: [result.imageData], walk: [result.imageData] }
+        : { idle: [], walk: [] };
+    }
+  }
+  return result;
+}
+
+async function listPets() {
+  const store = await readStore();
+  return Promise.all(store.pets.map((pet) => publicPet(pet, 'thumbnail')));
+}
+
+function notifyPetsChanged() {
+  if (creatorWindow && !creatorWindow.isDestroyed()) {
+    creatorWindow.webContents.send('pets:changed');
+  }
+}
+
+function onlyCreatorWindow(event) {
+  if (!creatorWindow || creatorWindow.isDestroyed() || creatorWindow.webContents.id !== event.sender.id) {
+    throw new Error('This action is only available from the DeskBuddy collection window.');
+  }
+}
+
+function addSafeNavigation(window) {
+  window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  window.webContents.on('will-navigate', (event) => event.preventDefault());
+}
+
+function createCreatorWindow() {
+  if (creatorWindow && !creatorWindow.isDestroyed()) {
+    creatorWindow.focus();
+    return creatorWindow;
+  }
+
+  creatorWindow = new BrowserWindow({
+    width: 1080,
+    height: 820,
+    minWidth: 880,
+    minHeight: 680,
+    backgroundColor: '#f7f4ee',
+    title: 'DeskBuddy',
+    show: false,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+      webSecurity: true,
+    },
+  });
+  creatorWindow.setMenuBarVisibility(false);
+  addSafeNavigation(creatorWindow);
+  creatorWindow.once('ready-to-show', () => creatorWindow?.show());
+  creatorWindow.on('closed', () => { creatorWindow = null; });
+  creatorWindow.loadFile(path.join(__dirname, 'src', 'creator.html'));
+  return creatorWindow;
+}
+
+function petWindowSize(pet) {
+  return numberInRange(pet.size, 96, 260, 156) + 42;
+}
+
+function clampedPosition(x, y, pet) {
+  const size = petWindowSize(pet);
+  const display = screen.getDisplayNearestPoint({ x, y });
+  const area = display.workArea;
+  return {
+    x: Math.round(clamp(x, area.x, Math.max(area.x, area.x + area.width - size))),
+    y: Math.round(clamp(y, area.y, Math.max(area.y, area.y + area.height - size))),
+  };
+}
+
+function stableNumber(value) {
+  let hash = 2166136261;
+  for (const character of String(value)) {
+    hash ^= character.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function chooseWanderTarget(petId, x, y, pet) {
+  const now = Date.now();
+  for (const [id, recent] of recentWanderDirections) {
+    if (now - recent.startedAt > 6_000) recentWanderDirections.delete(id);
+  }
+  const recentlyUsed = new Set([...recentWanderDirections.values()].map((recent) => recent.direction));
+  const firstDirection = (stableNumber(petId) + wanderTurn) % WANDER_DIRECTIONS.length;
+  wanderTurn = (wanderTurn + 1) % WANDER_DIRECTIONS.length;
+  let fallback = null;
+
+  for (let offset = 0; offset < WANDER_DIRECTIONS.length; offset += 1) {
+    const direction = WANDER_DIRECTIONS[(firstDirection + offset) % WANDER_DIRECTIONS.length];
+    const distance = 175 + (stableNumber(`${petId}:${now}:${direction.key}`) % 170);
+    const target = clampedPosition(x + direction.x * distance, y + direction.y * distance, pet);
+    if (Math.hypot(target.x - x, target.y - y) < 44) continue;
+    const choice = { target, direction: direction.key };
+    if (!fallback) fallback = choice;
+    if (!recentlyUsed.has(direction.key)) {
+      recentWanderDirections.set(petId, { direction: direction.key, startedAt: now });
+      return choice.target;
+    }
+  }
+
+  if (fallback) {
+    recentWanderDirections.set(petId, { direction: fallback.direction, startedAt: now });
+    return fallback.target;
+  }
+  return null;
+}
+
+function claimWanderStart() {
+  const now = Date.now();
+  if (now < nextWanderStartAt) return false;
+  nextWanderStartAt = now + 1_100 + Math.round(Math.random() * 700);
+  return true;
+}
+
+function wanderRetryAfter() {
+  return Math.max(800, nextWanderStartAt - Date.now());
+}
+
+function initialPosition(pet) {
+  if (pet.position && Number.isFinite(pet.position.x) && Number.isFinite(pet.position.y)) {
+    return clampedPosition(pet.position.x, pet.position.y, pet);
+  }
+  const area = screen.getPrimaryDisplay().workArea;
+  const cascade = petWindows.size % 6;
+  return clampedPosition(
+    area.x + area.width - petWindowSize(pet) - 42 - cascade * 29,
+    area.y + area.height - petWindowSize(pet) - 60 - cascade * 27,
+    pet,
+  );
+}
+
+function schedulePositionSave(petId, window) {
+  clearTimeout(positionTimers.get(petId));
+  positionTimers.set(petId, setTimeout(() => {
+    persistPosition(petId, window).catch(() => undefined);
+  }, 350));
+}
+
+function sendPetAnimationState(petId, state, direction) {
+  const window = petWindows.get(petId);
+  if (window && !window.isDestroyed()) {
+    window.webContents.send('pet:animation-state', { state, direction });
+  }
+}
+
+function stopGlide(petId, announceIdle = true) {
+  const timer = glideTimers.get(petId);
+  if (timer) clearInterval(timer);
+  glideTimers.delete(petId);
+  if (announceIdle) sendPetAnimationState(petId, 'idle');
+}
+
+function glidePetWindow(petId, window, target) {
+  stopGlide(petId, false);
+  if (window.isDestroyed() || !window.isVisible()) return;
+
+  const [startX, startY] = window.getPosition();
+  const direction = target.x < startX ? 'left' : 'right';
+  sendPetAnimationState(petId, 'walk', direction);
+  const duration = 1900 + Math.round(Math.random() * 700);
+  const startedAt = Date.now();
+  const timer = setInterval(() => {
+    if (glideTimers.get(petId) !== timer) {
+      clearInterval(timer);
+      return;
+    }
+    if (window.isDestroyed() || !window.isVisible()) {
+      stopGlide(petId);
+      return;
+    }
+    const progress = Math.min((Date.now() - startedAt) / duration, 1);
+    const eased = progress < 0.5
+      ? 2 * progress * progress
+      : 1 - ((-2 * progress + 2) ** 2) / 2;
+    window.setPosition(
+      Math.round(startX + (target.x - startX) * eased),
+      Math.round(startY + (target.y - startY) * eased),
+      false,
+    );
+    if (progress === 1) {
+      stopGlide(petId);
+      schedulePositionSave(petId, window);
+    }
+  }, 16);
+  glideTimers.set(petId, timer);
+}
+
+function persistPosition(petId, window) {
+  clearTimeout(positionTimers.get(petId));
+  if (window.isDestroyed()) return Promise.resolve();
+  const [x, y] = window.getPosition();
+  return changeStore((store) => {
+    const pet = store.pets.find((item) => item.id === petId);
+    if (pet) pet.position = { x, y };
+  });
+}
+
+async function persistOpenPetPositions() {
+  await Promise.all([...petWindows.entries()].map(([petId, window]) => persistPosition(petId, window).catch(() => undefined)));
+}
+
+function setPetShown(petId, shown) {
+  return changeStore((store) => {
+    const pet = store.pets.find((item) => item.id === petId);
+    if (!pet) throw new Error('That buddy could not be found.');
+    pet.shown = Boolean(shown);
+  });
+}
+
+async function removePetAsset(pet) {
+  const files = new Set([pet.imageFile]);
+  for (const clip of ['idle', 'walk']) {
+    for (const fileName of clipFilesForPet(pet, clip)) files.add(fileName);
+  }
+  try {
+    await Promise.all([...files].map(async (fileName) => {
+      try {
+        await fs.unlink(path.join(petAssetDirectory(), path.basename(fileName)));
+      } catch (error) {
+        if (error?.code !== 'ENOENT') throw error;
+      }
+    }));
+  } catch {
+    throw new Error('DeskBuddy could not remove that saved sprite. Please try again.');
+  }
+}
+
+async function writeAnimationAssets(id, animations) {
+  const animationFiles = {};
+  const writtenFiles = [];
+  try {
+    for (const clip of ['idle', 'walk']) {
+      animationFiles[clip] = [];
+      for (const [index, frame] of animations[clip].entries()) {
+        const fileName = `${id}-${clip}-${index}.${imageExtension(frame.mimeType)}`;
+        await fs.writeFile(path.join(petAssetDirectory(), fileName), frame.buffer);
+        animationFiles[clip].push(fileName);
+        writtenFiles.push(fileName);
+      }
+    }
+    return animationFiles;
+  } catch {
+    await Promise.all(writtenFiles.map((fileName) => (
+      fs.unlink(path.join(petAssetDirectory(), fileName)).catch(() => undefined)
+    )));
+    throw new Error('DeskBuddy could not save those sprite frames. Please try again.');
+  }
+}
+
+async function openPetWindow(id) {
+  const existing = petWindows.get(id);
+  if (existing && !existing.isDestroyed()) {
+    existing.show();
+    existing.focus();
+    return;
+  }
+
+  const alreadyOpening = openingPetWindows.get(id);
+  if (alreadyOpening) return alreadyOpening;
+
+  const opening = createPetWindow(id);
+  openingPetWindows.set(id, opening);
+  try {
+    return await opening;
+  } finally {
+    openingPetWindows.delete(id);
+  }
+}
+
+async function createPetWindow(id) {
+  const pet = await findPet(id);
+  const position = initialPosition(pet);
+  const size = petWindowSize(pet);
+  const window = new BrowserWindow({
+    x: position.x,
+    y: position.y,
+    width: size,
+    height: size,
+    minWidth: size,
+    minHeight: size,
+    maxWidth: size,
+    maxHeight: size,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    movable: true,
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    hasShadow: false,
+    show: false,
+    backgroundColor: '#00000000',
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+      webSecurity: true,
+    },
+  });
+
+  window.setAlwaysOnTop(true, 'screen-saver');
+  window.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  addSafeNavigation(window);
+  petWindows.set(id, window);
+  window.once('ready-to-show', () => window.showInactive());
+  window.on('moved', () => schedulePositionSave(id, window));
+  window.on('close', () => { persistPosition(id, window).catch(() => undefined); });
+  window.on('closed', () => {
+    stopGlide(id);
+    if (petWindows.get(id) === window) petWindows.delete(id);
+    dragOrigins.delete(id);
+    recentWanderDirections.delete(id);
+    clearTimeout(positionTimers.get(id));
+    notifyPetsChanged();
+  });
+  window.loadFile(path.join(__dirname, 'src', 'pet.html'), { query: { petId: id } })
+    .catch(() => window.close());
+}
+
+function onlyThisPetWindow(event, petId) {
+  if (!validPetId(petId)) throw new Error('Invalid buddy.');
+  const window = petWindows.get(petId);
+  if (!window || window.isDestroyed() || window.webContents.id !== event.sender.id) {
+    throw new Error('This action is not available.');
+  }
+  return window;
+}
+
+function dragCoordinates(payload) {
+  const screenX = Number(payload?.screenX);
+  const screenY = Number(payload?.screenY);
+  if (!Number.isFinite(screenX) || !Number.isFinite(screenY)) throw new Error('Invalid drag position.');
+  return { screenX, screenY };
+}
+
+ipcMain.handle('pets:list', (event) => {
+  onlyCreatorWindow(event);
+  return listPets();
+});
+
+ipcMain.handle('pets:validate-image', (event, imageData) => {
+  onlyCreatorWindow(event);
+  const image = decodeImage(imageData);
+  return { width: image.width, height: image.height, mimeType: image.mimeType };
+});
+
+ipcMain.handle('pets:create', async (event, input) => {
+  onlyCreatorWindow(event);
+  const animations = decodeAnimations(input);
+  const id = `pet-${crypto.randomUUID()}`;
+  const mimeType = animations.idle[0].mimeType;
+  const animationFiles = await writeAnimationAssets(id, animations);
+  const pet = {
+    id,
+    name: cleanName(input?.name),
+    size: numberInRange(input?.size, 96, 260, 156),
+    motion: input?.motion === 'still' ? 'still' : 'wander',
+    mimeType,
+    imageFile: animationFiles.idle[0],
+    animationFiles,
+    createdAt: new Date().toISOString(),
+    shown: true,
+  };
+
+  try {
+    await changeStore((nextStore) => {
+      if (nextStore.pets.length >= MAX_PETS) {
+        throw new Error('DeskBuddy can keep up to 30 buddies. Delete one before adding another.');
+      }
+      nextStore.pets.push(pet);
+    });
+  } catch (error) {
+    await removePetAsset(pet).catch(() => undefined);
+    throw error;
+  }
+  notifyPetsChanged();
+  await openPetWindow(id);
+  return publicPet(pet);
+});
+
+ipcMain.handle('pets:launch', async (event, petId) => {
+  onlyCreatorWindow(event);
+  await setPetShown(petId, true);
+  await openPetWindow(petId);
+  return true;
+});
+
+ipcMain.handle('pets:hide', async (event, petId) => {
+  onlyCreatorWindow(event);
+  if (!validPetId(petId)) throw new Error('Invalid buddy.');
+  await setPetShown(petId, false);
+  const window = petWindows.get(petId);
+  if (window && !window.isDestroyed()) {
+    await persistPosition(petId, window);
+    stopGlide(petId);
+    window.hide();
+  }
+  return true;
+});
+
+ipcMain.handle('pets:delete', async (event, petId) => {
+  onlyCreatorWindow(event);
+  const pet = await findPet(petId);
+  await removePetAsset(pet);
+  const window = petWindows.get(petId);
+  if (window && !window.isDestroyed()) window.close();
+  await changeStore((store) => {
+    store.pets = store.pets.filter((item) => item.id !== petId);
+  });
+  notifyPetsChanged();
+  return true;
+});
+
+ipcMain.handle('pet:get', async (event, petId) => {
+  onlyThisPetWindow(event, petId);
+  return publicPet(await findPet(petId));
+});
+
+ipcMain.handle('pet:drag-start', async (event, payload) => {
+  const petId = payload?.petId;
+  const window = onlyThisPetWindow(event, petId);
+  const { screenX, screenY } = dragCoordinates(payload);
+  const pet = await findPet(petId);
+  stopGlide(petId, false);
+  sendPetAnimationState(petId, 'walk');
+  const [x, y] = window.getPosition();
+  dragOrigins.set(petId, { screenX, screenY, x, y, pet });
+  return true;
+});
+
+ipcMain.handle('pet:drag-move', (event, payload) => {
+  const petId = payload?.petId;
+  const window = onlyThisPetWindow(event, petId);
+  const origin = dragOrigins.get(petId);
+  if (!origin) return false;
+  const { screenX, screenY } = dragCoordinates(payload);
+  const next = clampedPosition(origin.x + screenX - origin.screenX, origin.y + screenY - origin.screenY, origin.pet);
+  window.setPosition(next.x, next.y, false);
+  return true;
+});
+
+ipcMain.handle('pet:drag-end', (event, petId) => {
+  const window = onlyThisPetWindow(event, petId);
+  dragOrigins.delete(petId);
+  return persistPosition(petId, window).then(() => {
+    sendPetAnimationState(petId, 'idle');
+    return true;
+  });
+});
+
+ipcMain.handle('pet:nudge', async (event, petId) => {
+  const window = onlyThisPetWindow(event, petId);
+  if (!window.isVisible()) return { started: false, retryAfter: 2_500 };
+  const pet = await findPet(petId);
+  if (pet.motion === 'still') return { started: false, retryAfter: 2_500 };
+  if (dragOrigins.has(petId) || glideTimers.has(petId)) return { started: false, retryAfter: 1_800 };
+  if (!claimWanderStart()) return { started: false, retryAfter: wanderRetryAfter() };
+  const [x, y] = window.getPosition();
+  const next = chooseWanderTarget(petId, x, y, pet);
+  if (!next) return { started: false, retryAfter: wanderRetryAfter() };
+  glidePetWindow(petId, window, next);
+  return { started: true };
+});
+
+function createTrayIcon() {
+  const width = 16;
+  const pixels = Buffer.alloc(width * width * 4);
+  for (let y = 0; y < width; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const distance = Math.hypot(x - 7.5, y - 7.5);
+      if (distance > 7.3) continue;
+      const offset = (y * width + x) * 4;
+      const highlight = y < 6 && x < 7;
+      pixels[offset] = highlight ? 170 : 112;
+      pixels[offset + 1] = highlight ? 178 : 111;
+      pixels[offset + 2] = highlight ? 252 : 220;
+      pixels[offset + 3] = 255;
+    }
+  }
+  return nativeImage.createFromBitmap(pixels, { width, height: width, scaleFactor: 1 });
+}
+
+async function showAllPets() {
+  const store = await readStore();
+  await changeStore((nextStore) => {
+    for (const pet of nextStore.pets) pet.shown = true;
+  });
+  await Promise.all(store.pets.map((pet) => openPetWindow(pet.id)));
+}
+
+async function hideAllPets() {
+  await changeStore((store) => {
+    for (const pet of store.pets) pet.shown = false;
+  });
+  await persistOpenPetPositions();
+  for (const window of petWindows.values()) {
+    if (!window.isDestroyed()) window.hide();
+  }
+  for (const petId of petWindows.keys()) stopGlide(petId);
+}
+
+async function restoreShownPets() {
+  const store = await readStore();
+  await Promise.all(store.pets.filter((pet) => pet.shown !== false).map((pet) => openPetWindow(pet.id)));
+}
+
+async function requestQuit() {
+  if (quitting) return;
+  quitting = true;
+  await persistOpenPetPositions();
+  app.quit();
+}
+
+function createTray() {
+  tray = new Tray(createTrayIcon());
+  tray.setToolTip('DeskBuddy');
+  tray.setContextMenu(Menu.buildFromTemplate([
+    { label: 'Open DeskBuddy', click: () => createCreatorWindow() },
+    { label: 'Show all buddies', click: () => showAllPets().catch(() => undefined) },
+    { label: 'Hide all buddies', click: () => hideAllPets().catch(() => undefined) },
+    { type: 'separator' },
+    { label: 'Quit DeskBuddy', click: () => requestQuit() },
+  ]));
+  tray.on('click', () => createCreatorWindow());
+}
+
+app.whenReady().then(async () => {
+  try {
+    app.setName('DeskBuddy');
+    await ensureStore();
+    session.defaultSession.setPermissionCheckHandler(() => false);
+    session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false));
+    createTray();
+    createCreatorWindow();
+    restoreShownPets().catch(() => undefined);
+
+    app.on('activate', () => createCreatorWindow());
+  } catch (error) {
+    dialog.showErrorBox('DeskBuddy could not start', error?.message || 'DeskBuddy could not access its local storage.');
+    app.quit();
+  }
+});
+
+app.on('before-quit', (event) => {
+  if (!quitting) {
+    event.preventDefault();
+    requestQuit();
+  }
+});
