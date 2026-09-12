@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "electron .",
     "start": "electron .",
-    "check": "node --check main.js && node --check preload.js && node --check src/creator.js && node --check src/pet.js",
+    "check": "node --check main.js && node --check preload.js && node --check src/creator.js && node --check src/pet.js && node --check docs/assets/site.js",
     "dist": "electron-builder"
   },
   "devDependencies": {

@@ -2,6 +2,12 @@
 
 DeskBuddy is a local-first **sprite-buddy creator**. Make a tiny animated companion from your own art, then let it float above your Mac or Windows desktop. It plays your idle frames while resting and your walk frames while you drag it or it glides around.
 
+## Project website
+
+The static DeskBuddy website lives in [`docs/`](docs/index.html), with a visitor-friendly [sprite and setup guide](docs/guide/index.html). It uses plain HTML, CSS, and JavaScript with no build step or third-party assets.
+
+To publish it after pushing this repository to GitHub, open **Settings → Pages**, choose **Deploy from a branch**, then select the `main` branch and `/docs` folder.
+
 ## What makes it portfolio-worthy
 
 - A polished Electron desktop app, not just a static web mockup.
