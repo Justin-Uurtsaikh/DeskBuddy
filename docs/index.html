@@ -4,11 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Draw or import an animated sprite and let your own tiny buddy wander across your Mac or Windows desktop. Free, local-first, and open source." />
-    <meta name="theme-color" content="#f7f4ee" />
+    <meta name="theme-color" content="#172b35" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="DeskBuddy — Bring Your Sprites to Life" />
     <meta property="og:description" content="Draw or import an animated sprite and let your own tiny buddy wander across your Mac or Windows desktop." />
     <meta property="og:url" content="https://justinuurtsaikh.github.io/DeskBuddy/" />
+    <meta property="og:image" content="https://justinuurtsaikh.github.io/DeskBuddy/assets/cozy-workshop.png" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
     <title>DeskBuddy — Bring Your Sprites to Life</title>
     <link rel="canonical" href="https://justinuurtsaikh.github.io/DeskBuddy/" />
@@ -16,7 +17,7 @@
     <link rel="stylesheet" href="assets/site.css" />
     <script src="assets/site.js" defer></script>
   </head>
-  <body id="top">
+  <body id="top" class="home-body">
     <a class="skip-link" href="#main-content">Skip to content</a>
 
     <svg class="sprite-defs" aria-hidden="true">
@@ -51,24 +52,43 @@
     </header>
 
     <main id="main-content">
-      <section class="hero container">
-        <div class="hero-copy" data-reveal>
-          <p class="eyebrow">YOUR ART. YOUR DESKTOP BUDDY.</p>
-          <h1>Draw it. Animate it. <span>Let it roam.</span></h1>
-          <p class="hero-intro">Turn your own sprite art into a tiny companion that idles, walks, and wanders above your windows. Import a transparent PNG sprite sheet or draw every frame inside DeskBuddy.</p>
-          <div class="button-row">
-            <a class="button" href="#how-it-works">Make a buddy <span aria-hidden="true">→</span></a>
-            <a class="button button--secondary" href="guide/">See the sprite guide</a>
+      <section class="hero-zone" aria-labelledby="hero-title">
+        <div class="hero-scene" aria-hidden="true"></div>
+        <div class="hero container">
+          <div class="hero-copy" data-reveal>
+            <p class="eyebrow">WELCOME TO THE SPRITE WORKSHOP</p>
+            <h1 id="hero-title">Draw a buddy. <span>Bring it home.</span></h1>
+            <p class="hero-intro">Turn your own sprite art into a tiny companion that idles, walks, and wanders above your windows. Import a transparent PNG sprite sheet or draw every frame inside DeskBuddy.</p>
+            <div class="button-row">
+              <a class="button" href="#how-it-works">Start making <span aria-hidden="true">→</span></a>
+              <a class="button button--secondary" href="guide/">See the sprite guide</a>
+            </div>
+            <ul class="trust-list" aria-label="DeskBuddy highlights">
+              <li><span aria-hidden="true">◆</span> Mac + Windows</li>
+              <li><span aria-hidden="true">◆</span> Local-first</li>
+              <li><span aria-hidden="true">◆</span> Open source</li>
+              <li><span aria-hidden="true">◆</span> No account</li>
+            </ul>
           </div>
-          <ul class="trust-list" aria-label="DeskBuddy highlights">
-            <li><span aria-hidden="true">●</span> Mac + Windows</li>
-            <li><span aria-hidden="true">●</span> Local-first</li>
-            <li><span aria-hidden="true">●</span> Open source</li>
-            <li><span aria-hidden="true">●</span> No account</li>
-          </ul>
-        </div>
 
-        <figure class="desktop-card" data-reveal>
+          <div class="scene-callout" data-reveal>
+            <span>PIP · ONLINE</span>
+            <p>your tiny buddy is ready to roam.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="try-pip" class="playground section">
+        <div class="container">
+          <div class="section-heading section-heading--playground" data-reveal>
+            <div>
+              <p class="eyebrow">A TINY WORLD TO TRY</p>
+              <h2>Say hi to Pip.</h2>
+            </div>
+            <p>Click anywhere in the preview and Pip will wander over. Pause the animation whenever you want.</p>
+          </div>
+
+          <figure class="desktop-card" data-reveal>
           <div class="desktop-card__bar" aria-hidden="true">
             <span class="window-dots"><i></i><i></i><i></i></span>
             <span>DeskBuddy preview</span>
@@ -115,7 +135,8 @@
               <span aria-hidden="true">Ⅱ</span> Pause animation
             </button>
           </figcaption>
-        </figure>
+          </figure>
+        </div>
       </section>
 
       <section class="proof-strip" aria-label="DeskBuddy capabilities">
