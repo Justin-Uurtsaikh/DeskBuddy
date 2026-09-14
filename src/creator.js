@@ -2,10 +2,26 @@ const MAX_FRAMES_PER_CLIP = 8;
 const MAX_SHEET_COLUMNS = 32;
 const MAX_SHEET_ROWS = 32;
 const DRAW_SIZE = 160;
+const PRESET_LAYOUT = Object.freeze({
+  columns: 4,
+  rows: 2,
+  idle: { row: 0, start: 0, frames: 4 },
+  walk: { row: 1, start: 0, frames: 4 },
+});
+const PRESETS = Object.freeze({
+  sprout: { name: 'Sprout', sheet: 'assets/presets/sprout-sheet.png' },
+  mochi: { name: 'Mochi', sheet: 'assets/presets/mochi-sheet.png' },
+  miso: { name: 'Miso', sheet: 'assets/presets/miso-sheet.png' },
+  taro: { name: 'Taro', sheet: 'assets/presets/taro-sheet.png' },
+  honey: { name: 'Honey', sheet: 'assets/presets/honey-sheet.png' },
+});
 
 const form = document.querySelector('#pet-form');
 const imageInput = document.querySelector('#image-input');
 const uploadZone = document.querySelector('#upload-zone');
+const presetPanel = document.querySelector('#preset-panel');
+const presetStatus = document.querySelector('#preset-status');
+const presetChoices = [...document.querySelectorAll('[data-preset-id]')];
 const importPanel = document.querySelector('#import-panel');
 const drawPanel = document.querySelector('#draw-panel');
 const modeButtons = [...document.querySelectorAll('[data-creation-mode]')];
@@ -56,7 +72,12 @@ const nextFrameButton = document.querySelector('#next-frame');
 const addFrameButton = document.querySelector('#add-frame');
 const deleteFrameButton = document.querySelector('#delete-frame');
 
-let creationMode = 'import';
+let creationMode = 'preset';
+let selectedPresetId = null;
+let presetAnimations = null;
+let presetLoadVersion = 0;
+let presetPreviewTimer = null;
+const presetAnimationCache = new Map();
 let selectedSheetData = null;
 let importedAnimations = null;
 let selectedSheetMeta = null;
@@ -81,6 +102,9 @@ function blankFrame() {
 
 function setCreateButton(isWorking) {
   createButton.disabled = isWorking;
+  for (const control of [...modeButtons, ...presetChoices, nameInput, sizeInput]) {
+    control.disabled = isWorking;
+  }
   createButton.replaceChildren();
   createButton.append(document.createTextNode(isWorking ? 'Saving your frames…' : 'Create & launch '));
   if (!isWorking) {
@@ -254,11 +278,11 @@ function renderSheetInfo(width, height) {
   else updateGridChoiceState();
 }
 
-async function splitSpriteSheet(imageData) {
-  if (!sheetGridChosen) {
+async function splitSpriteSheet(imageData, layoutOverride = null) {
+  if (!layoutOverride && !sheetGridChosen) {
     throw new Error('Choose a square cell grid above before making your buddy.');
   }
-  const layout = sheetLayout();
+  const layout = layoutOverride || sheetLayout();
   const source = await loadImage(imageData);
   if (source.naturalWidth % layout.columns !== 0 || source.naturalHeight % layout.rows !== 0) {
     throw new Error('Use equal sprite cells: the PNG width must divide evenly by columns and its height by rows.');
@@ -310,6 +334,86 @@ async function rebuildImportedAnimations() {
   return animations;
 }
 
+function stopPresetPreview() {
+  if (presetPreviewTimer) window.clearInterval(presetPreviewTimer);
+  presetPreviewTimer = null;
+}
+
+function playPresetPreview(animations) {
+  stopPresetPreview();
+  const frames = animations?.idle || [];
+  if (!frames.length) {
+    setPreview(null);
+    return;
+  }
+  let frameIndex = 0;
+  setPreview(frames[frameIndex]);
+  if (frames.length === 1 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  presetPreviewTimer = window.setInterval(() => {
+    if (creationMode !== 'preset') {
+      stopPresetPreview();
+      return;
+    }
+    frameIndex = (frameIndex + 1) % frames.length;
+    setPreview(frames[frameIndex]);
+  }, 520);
+}
+
+async function loadPresetAnimations(presetId) {
+  if (presetAnimationCache.has(presetId)) return presetAnimationCache.get(presetId);
+  const preset = PRESETS[presetId];
+  if (!preset) throw new Error('That starter buddy is not available.');
+  const sheetUrl = new URL(preset.sheet, document.baseURI).href;
+  const { clips } = await splitSpriteSheet(sheetUrl, PRESET_LAYOUT);
+  const frames = [...clips.idle, ...clips.walk];
+  const transparencyChecks = await Promise.all(frames.map(imageHasTransparentPixels));
+  if (transparencyChecks.some((hasTransparency) => !hasTransparency)) {
+    throw new Error(`${preset.name}'s sprite frames are missing transparency.`);
+  }
+  presetAnimationCache.set(presetId, clips);
+  return clips;
+}
+
+async function selectPreset(presetId, { updateName = true } = {}) {
+  const preset = PRESETS[presetId];
+  if (!preset) return;
+  const loadVersion = ++presetLoadVersion;
+  selectedPresetId = presetId;
+  presetAnimations = presetAnimationCache.get(presetId) || null;
+  stopPresetPreview();
+  for (const choice of presetChoices) {
+    const isActive = choice.dataset.presetId === presetId;
+    choice.classList.toggle('active', isActive);
+    choice.setAttribute('aria-pressed', String(isActive));
+  }
+  if (updateName) {
+    nameInput.value = preset.name;
+    updatePreviewName();
+  }
+  presetPanel.setAttribute('aria-busy', 'true');
+  presetStatus.textContent = `Waking ${preset.name}…`;
+  if (creationMode === 'preset') {
+    if (presetAnimations) playPresetPreview(presetAnimations);
+    else setPreview(null);
+  }
+  setMessage();
+  try {
+    const animations = await loadPresetAnimations(presetId);
+    if (loadVersion !== presetLoadVersion) return;
+    presetAnimations = animations;
+    if (creationMode === 'preset') playPresetPreview(animations);
+    presetStatus.textContent = `${preset.name} is ready · 4 idle + 4 walk frames.`;
+  } catch (error) {
+    if (loadVersion !== presetLoadVersion) return;
+    presetAnimations = null;
+    if (creationMode === 'preset') setPreview(null);
+    presetStatus.textContent = 'This starter could not be loaded.';
+    throw error;
+  } finally {
+    if (loadVersion === presetLoadVersion) presetPanel.removeAttribute('aria-busy');
+  }
+}
+
 async function useFile(file) {
   setMessage();
   importedAnimations = null;
@@ -346,7 +450,9 @@ async function useFile(file) {
 
 function setCreationMode(nextMode) {
   if (creationMode === 'draw') saveActiveFrame();
+  stopPresetPreview();
   creationMode = nextMode;
+  presetPanel.hidden = nextMode !== 'preset';
   importPanel.hidden = nextMode !== 'import';
   drawPanel.hidden = nextMode !== 'draw';
   for (const button of modeButtons) {
@@ -356,6 +462,10 @@ function setCreationMode(nextMode) {
   }
   if (nextMode === 'draw') {
     setPreview(drawingFrames[activeClip][activeFrame]);
+  } else if (nextMode === 'preset') {
+    if (presetAnimations?.idle?.[0]) playPresetPreview(presetAnimations);
+    else if (selectedPresetId) selectPreset(selectedPresetId, { updateName: false }).catch(showError);
+    else selectPreset('sprout').catch(showError);
   } else if (importedAnimations?.idle?.[0]) {
     setPreview(importedAnimations.idle[0]);
   } else {
@@ -582,8 +692,17 @@ async function refreshPets() {
   }
 }
 
-function resetCreator() {
+async function resetCreator() {
   form.reset();
+  stopPresetPreview();
+  presetLoadVersion += 1;
+  selectedPresetId = null;
+  presetAnimations = null;
+  presetStatus.textContent = 'Choose a starter to preview its animation.';
+  for (const choice of presetChoices) {
+    choice.classList.remove('active');
+    choice.setAttribute('aria-pressed', 'false');
+  }
   selectedSheetData = null;
   importedAnimations = null;
   selectedSheetMeta = null;
@@ -594,14 +713,15 @@ function resetCreator() {
   activeClip = 'idle';
   activeFrame = 0;
   drawingTool = 'brush';
-  sizeInput.value = '156';
-  sizeOutput.value = '156 px';
+  sizeInput.value = '112';
+  sizeOutput.value = '112 px';
   brushSizeOutput.value = `${brushSize.value} px`;
   setPreview(null);
   setSheetStatus();
   clearCanvas();
   updateDrawingUI();
   updatePreviewName();
+  if (creationMode === 'preset') await selectPreset('sprout');
 }
 
 imageInput.addEventListener('change', () => useFile(imageInput.files?.[0]));
@@ -620,6 +740,9 @@ for (const eventName of ['dragleave', 'drop']) {
 uploadZone.addEventListener('drop', (event) => useFile(event.dataTransfer?.files?.[0]));
 for (const button of modeButtons) {
   button.addEventListener('click', () => setCreationMode(button.dataset.creationMode));
+}
+for (const choice of presetChoices) {
+  choice.addEventListener('click', () => selectPreset(choice.dataset.presetId).catch(showError));
 }
 for (const input of Object.values(layoutInputs)) {
   input.addEventListener('change', async () => {
@@ -683,20 +806,30 @@ canvas.addEventListener('pointercancel', stopDrawing);
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
+  const requestedMode = creationMode;
+  const requestedPresetId = selectedPresetId;
+  const requestedName = nameInput.value;
+  const requestedSize = sizeInput.value;
   setCreateButton(true);
   setMessage();
   try {
-    const animations = creationMode === 'import'
-      ? await rebuildImportedAnimations()
-      : await exportedDrawingAnimations();
-    if (!animations) throw new Error('Choose a transparent PNG sprite sheet first.');
+    let animations;
+    if (requestedMode === 'preset') {
+      if (!requestedPresetId) throw new Error('Choose a starter buddy first.');
+      animations = presetAnimationCache.get(requestedPresetId) || await loadPresetAnimations(requestedPresetId);
+    } else if (requestedMode === 'import') {
+      animations = await rebuildImportedAnimations();
+      if (!animations) throw new Error('Choose a transparent PNG sprite sheet first.');
+    } else {
+      animations = await exportedDrawingAnimations();
+    }
     await window.deskbuddy.createPet({
       animations,
-      name: nameInput.value,
-      size: sizeInput.value,
+      name: requestedName,
+      size: requestedSize,
       motion: 'wander',
     });
-    resetCreator();
+    await resetCreator();
     setMessage('Your animated buddy is now on your desktop.', true);
     await refreshPets();
   } catch (error) {
@@ -710,4 +843,5 @@ window.deskbuddy.onPetsChanged(refreshPets);
 updatePreviewName();
 updateDrawingUI();
 loadActiveFrame().catch(showError);
+selectPreset('sprout').catch(showError);
 refreshPets();

@@ -4,26 +4,33 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
-    <title>DeskBuddy</title>
+    <meta name="theme-color" content="#1e2015" />
+    <title>DeskBuddy — Sprout's Workshop</title>
     <link rel="stylesheet" href="creator.css" />
   </head>
   <body>
     <main class="app-shell">
       <header class="topbar">
         <a class="brand" href="#top" aria-label="DeskBuddy home">
-          <span class="brand-mark" aria-hidden="true">✦</span>
+          <span class="brand-mark" aria-hidden="true"><img src="assets/presets/sprout-sheet.png" alt="" /></span>
           <span>DeskBuddy</span>
         </a>
-        <p class="privacy-note"><span aria-hidden="true">⌁</span> Your sprites stay on this device</p>
+        <p class="privacy-note"><span aria-hidden="true">⌂</span> Your sprites stay on this device</p>
       </header>
 
       <section id="top" class="hero" aria-labelledby="page-title">
         <div class="hero-copy">
-          <p class="eyebrow">YOUR LITTLE DESKTOP COMPANION</p>
-          <h1 id="page-title">Build a sprite buddy that moves with your own animation.</h1>
-          <p class="intro">Import a clean sprite sheet or draw each frame yourself. DeskBuddy plays your idle frames while it rests and your walk frames while it glides around the desktop.</p>
+          <p class="eyebrow">SPROUT'S FOREST WORKSHOP</p>
+          <h1 id="page-title">Make a little friend.</h1>
+          <p class="intro">Pick a workshop resident, bring a transparent sprite sheet, or draw each frame here. DeskBuddy handles the resting and walking loops.</p>
         </div>
-        <div class="sparkles" aria-hidden="true"><span>✦</span><span>✧</span><span>✦</span></div>
+        <div class="hero-bubble">
+          <span class="hero-sprout" aria-hidden="true"><img src="assets/presets/sprout-sheet.png" alt="" /></span>
+          <span class="hero-note">
+            <small>A NOTE FROM SPROUT</small>
+            <strong>Pick a neighbor—or draw your own.</strong>
+          </span>
+        </div>
       </section>
 
       <section class="maker-grid" aria-label="Create a new DeskBuddy">
@@ -33,12 +40,41 @@
             <h2>Make a buddy</h2>
           </div>
 
-          <div class="mode-switch" aria-label="Choose a creation method">
-            <button class="mode-button active" type="button" data-creation-mode="import" aria-pressed="true">Import sprite sheet</button>
-            <button class="mode-button" type="button" data-creation-mode="draw" aria-pressed="false">Draw your own</button>
+          <div class="mode-switch" role="group" aria-label="Choose a creation method">
+            <button class="mode-button active" type="button" data-creation-mode="preset" aria-controls="preset-panel" aria-pressed="true">Starter buddies</button>
+            <button class="mode-button" type="button" data-creation-mode="import" aria-controls="import-panel" aria-pressed="false">Import sprite sheet</button>
+            <button class="mode-button" type="button" data-creation-mode="draw" aria-controls="draw-panel" aria-pressed="false">Draw your own</button>
           </div>
 
-          <section id="import-panel" class="creation-panel" aria-labelledby="import-title">
+          <section id="preset-panel" class="creation-panel preset-panel" aria-labelledby="preset-title">
+            <h3 id="preset-title" class="panel-title">Pick a workshop resident</h3>
+            <p class="panel-copy">These little friends are ready to go. Every one includes a cozy idle loop and a walking animation.</p>
+            <div class="preset-grid" role="group" aria-label="Premade starter buddies">
+              <button class="preset-choice" type="button" data-preset-id="sprout" aria-pressed="false">
+                <span class="preset-thumb" aria-hidden="true"><img src="assets/presets/sprout-sheet.png" alt="" /></span>
+                <span class="preset-card-copy"><strong>Sprout</strong><small>Runs the workshop</small></span>
+              </button>
+              <button class="preset-choice" type="button" data-preset-id="mochi" aria-pressed="false">
+                <span class="preset-thumb" aria-hidden="true"><img src="assets/presets/mochi-sheet.png" alt="" /></span>
+                <span class="preset-card-copy"><strong>Mochi</strong><small>Naps between hops</small></span>
+              </button>
+              <button class="preset-choice" type="button" data-preset-id="miso" aria-pressed="false">
+                <span class="preset-thumb" aria-hidden="true"><img src="assets/presets/miso-sheet.png" alt="" /></span>
+                <span class="preset-card-copy"><strong>Miso</strong><small>Pretends not to care</small></span>
+              </button>
+              <button class="preset-choice" type="button" data-preset-id="taro" aria-pressed="false">
+                <span class="preset-thumb" aria-hidden="true"><img src="assets/presets/taro-sheet.png" alt="" /></span>
+                <span class="preset-card-copy"><strong>Taro</strong><small>Flaps, then waddles</small></span>
+              </button>
+              <button class="preset-choice" type="button" data-preset-id="honey" aria-pressed="false">
+                <span class="preset-thumb" aria-hidden="true"><img src="assets/presets/honey-sheet.png" alt="" /></span>
+                <span class="preset-card-copy"><strong>Honey</strong><small>Always in a hurry</small></span>
+              </button>
+            </div>
+            <p id="preset-status" class="panel-status" role="status" aria-live="polite">Choose a starter to preview its animation.</p>
+          </section>
+
+          <section id="import-panel" class="creation-panel" aria-labelledby="import-title" hidden>
             <h3 id="import-title" class="panel-title">Use a transparent PNG sprite sheet</h3>
             <p class="panel-copy">Use a clean transparent sheet with equal cells. After upload, pick the cell grid that keeps one complete character in each box, then choose each animation's row and start column.</p>
             <label class="upload-zone" id="upload-zone" for="image-input">
@@ -68,7 +104,7 @@
             <h3 id="draw-title" class="panel-title">Draw your animation frames</h3>
             <p class="panel-copy">Make at least one visible idle frame and one visible walk frame. Add more frames to make a loop.</p>
             <div class="draw-toolbar" aria-label="Drawing controls">
-              <label>Color <input id="brush-color" type="color" value="#5c4b88" /></label>
+              <label>Color <input id="brush-color" type="color" value="#734425" /></label>
               <label>Brush <input id="brush-size" type="range" min="1" max="32" value="8" /><output id="brush-size-output" for="brush-size">8 px</output></label>
               <label class="onion-toggle"><input id="onion-toggle" type="checkbox" checked /> Previous frame</label>
               <label>Onion opacity <input id="onion-opacity" type="range" min="10" max="70" value="32" /><output id="onion-opacity-output" for="onion-opacity">32%</output></label>
@@ -80,8 +116,8 @@
               <div class="canvas-wrap"><img id="onion-skin" alt="" aria-hidden="true" hidden /><canvas id="sprite-canvas" width="160" height="160" aria-label="Sprite drawing canvas"></canvas></div>
               <div class="frame-editor">
                 <div class="clip-switch" aria-label="Animation clip">
-                  <button type="button" class="clip-button active" data-clip="idle" aria-pressed="true">Idle</button>
-                  <button type="button" class="clip-button" data-clip="walk" aria-pressed="false">Walk</button>
+                  <button type="button" class="clip-button active" data-clip="idle" aria-controls="sprite-canvas draw-frame-list" aria-pressed="true">Idle</button>
+                  <button type="button" class="clip-button" data-clip="walk" aria-controls="sprite-canvas draw-frame-list" aria-pressed="false">Walk</button>
                 </div>
                 <p id="draw-frame-status" class="draw-frame-status">Idle · frame 1 of 1</p>
                 <div id="draw-frame-list" class="draw-frame-list" aria-label="Animation frames"></div>
@@ -97,14 +133,14 @@
           </section>
 
           <label class="field-label" for="name-input">Name</label>
-          <input id="name-input" class="text-field" name="name" maxlength="36" placeholder="e.g. Mochi" autocomplete="off" />
+          <input id="name-input" class="text-field" name="name" maxlength="36" placeholder="e.g. Sprout" autocomplete="off" />
 
           <div class="range-row">
-            <label class="field-label" for="size-input">Size <output id="size-output" for="size-input">156 px</output></label>
-            <input id="size-input" name="size" type="range" min="96" max="260" value="156" />
+            <label class="field-label" for="size-input">Size <output id="size-output" for="size-input">112 px</output></label>
+            <input id="size-input" name="size" type="range" min="64" max="192" value="112" />
           </div>
 
-          <div class="motion-summary"><span aria-hidden="true">↝</span><span><strong>Sprite drift is on</strong><small>Your buddy plays its walk frames while it smoothly slides around the desktop.</small></span></div>
+          <div class="motion-summary"><span aria-hidden="true">↝</span><span><strong>Screen-edge loops are on</strong><small>When your buddy walks off one side, it pops back in from the opposite edge.</small></span></div>
 
           <p id="form-message" class="form-message" role="status" aria-live="polite"></p>
           <button id="create-button" class="primary-button" type="submit">Create &amp; launch <span aria-hidden="true">→</span></button>
@@ -113,14 +149,12 @@
         <aside class="preview-card" aria-label="Buddy preview">
           <div class="section-heading">
             <p class="step">02</p>
-            <h2>Say hello</h2>
+            <h2>At the window</h2>
           </div>
           <div class="preview-stage">
-            <span class="orbit orbit-one" aria-hidden="true"></span>
-            <span class="orbit orbit-two" aria-hidden="true"></span>
             <div id="preview-pet" class="preview-pet preview-placeholder">
               <img id="preview-image" alt="" hidden />
-              <span id="preview-symbol" aria-hidden="true">✦</span>
+              <span id="preview-symbol" aria-hidden="true">⌁</span>
             </div>
             <span class="preview-shadow" aria-hidden="true"></span>
           </div>
@@ -139,7 +173,7 @@
           <p id="buddy-count" class="count-label">0 buddies</p>
         </div>
         <div id="empty-state" class="empty-state">
-          <span aria-hidden="true">✧</span>
+          <span aria-hidden="true">⌂</span>
           <p>Your first buddy will appear here.</p>
         </div>
         <div id="pet-list" class="pet-list" aria-live="polite"></div>

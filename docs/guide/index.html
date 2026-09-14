@@ -4,13 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Learn how to install DeskBuddy, prepare a transparent sprite sheet, draw animation frames, and launch your own desktop companion." />
-    <meta name="theme-color" content="#172b35" />
+    <meta name="theme-color" content="#17150f" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="DeskBuddy Sprite Guide" />
     <meta property="og:description" content="Install DeskBuddy, prepare a transparent sprite sheet, and launch your own desktop companion." />
     <meta property="og:url" content="https://justinuurtsaikh.github.io/DeskBuddy/guide/" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
-    <title>DeskBuddy Sprite Guide</title>
+    <title>DeskBuddy Field Guide</title>
     <link rel="canonical" href="https://justinuurtsaikh.github.io/DeskBuddy/guide/" />
     <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="../assets/site.css" />
@@ -21,15 +21,8 @@
 
     <svg class="sprite-defs" aria-hidden="true">
       <defs>
-        <symbol id="pip-sprite" viewBox="0 0 16 16">
-          <path class="sprite-outline" d="M5 1h6v1h2v2h1v8h-2v2H4v-2H2V4h1V2h2V1Z" />
-          <path class="sprite-body" d="M5 3h6v1h2v7h-2v2H5v-2H3V5h2V3Z" />
-          <rect class="sprite-eye" x="5" y="7" width="2" height="2" />
-          <rect class="sprite-eye" x="10" y="7" width="2" height="2" />
-          <rect class="sprite-cheek" x="4" y="9" width="2" height="1" />
-          <rect class="sprite-cheek" x="11" y="9" width="2" height="1" />
-          <rect class="sprite-mouth" x="7" y="10" width="3" height="1" />
-          <rect class="sprite-shine" x="6" y="4" width="2" height="1" />
+        <symbol id="sprout-sprite" viewBox="0 0 16 16">
+          <image href="../assets/sprout-sheet.png" width="64" height="32" preserveAspectRatio="none" />
         </symbol>
       </defs>
     </svg>
@@ -37,7 +30,7 @@
     <header class="site-header">
       <div class="container nav-shell">
         <a class="brand" href="../" aria-label="DeskBuddy home">
-          <span class="brand-mark" aria-hidden="true">✦</span>
+          <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 16 16"><use href="#sprout-sprite"></use></svg></span>
           <span>DeskBuddy</span>
         </a>
         <nav class="nav-links" aria-label="Primary navigation">
@@ -52,7 +45,7 @@
     <main id="guide-content" class="guide-main">
       <section class="guide-hero container" data-reveal>
         <a class="breadcrumb" href="../"><span aria-hidden="true">←</span> Back to DeskBuddy</a>
-        <p class="eyebrow">THE SPRITE WORKFLOW</p>
+        <p class="eyebrow">SPROUT'S FIELD GUIDE</p>
         <h1>Make your first DeskBuddy.</h1>
         <p>Install the app from source, bring a transparent sprite sheet—or draw directly in DeskBuddy—and turn a few frames into a tiny companion that lives above your windows.</p>
       </section>
@@ -133,17 +126,17 @@
             <div class="guide-sheet checkerboard" aria-label="Example four-column, two-row sprite sheet">
               <div class="sheet-label sheet-label--idle">Idle</div>
               <div class="sheet-row">
-                <span><svg viewBox="0 0 16 16"><use href="#pip-sprite"></use></svg></span>
-                <span><svg viewBox="0 0 16 16"><use href="#pip-sprite"></use></svg></span>
-                <span><svg viewBox="0 0 16 16"><use href="#pip-sprite"></use></svg></span>
-                <span><svg viewBox="0 0 16 16"><use href="#pip-sprite"></use></svg></span>
+                <span><svg viewBox="0 0 16 16"><use href="#sprout-sprite"></use></svg></span>
+                <span><svg viewBox="0 0 16 16"><use href="#sprout-sprite"></use></svg></span>
+                <span><svg viewBox="0 0 16 16"><use href="#sprout-sprite"></use></svg></span>
+                <span><svg viewBox="0 0 16 16"><use href="#sprout-sprite"></use></svg></span>
               </div>
               <div class="sheet-label sheet-label--walk">Walk</div>
               <div class="sheet-row sheet-row--walk">
-                <span><svg viewBox="0 0 16 16"><use href="#pip-sprite"></use></svg></span>
-                <span><svg viewBox="0 0 16 16"><use href="#pip-sprite"></use></svg></span>
-                <span><svg viewBox="0 0 16 16"><use href="#pip-sprite"></use></svg></span>
-                <span><svg viewBox="0 0 16 16"><use href="#pip-sprite"></use></svg></span>
+                <span><svg viewBox="0 0 16 16"><use href="#sprout-sprite"></use></svg></span>
+                <span><svg viewBox="0 0 16 16"><use href="#sprout-sprite"></use></svg></span>
+                <span><svg viewBox="0 0 16 16"><use href="#sprout-sprite"></use></svg></span>
+                <span><svg viewBox="0 0 16 16"><use href="#sprout-sprite"></use></svg></span>
               </div>
             </div>
 
@@ -228,7 +221,7 @@
     <footer class="site-footer">
       <div class="container footer-shell">
         <a class="brand" href="../">
-          <span class="brand-mark" aria-hidden="true">✦</span>
+          <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 16 16"><use href="#sprout-sprite"></use></svg></span>
           <span>DeskBuddy</span>
         </a>
         <div class="footer-links">

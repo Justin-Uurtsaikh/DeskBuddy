@@ -1,6 +1,6 @@
 # DeskBuddy
 
-DeskBuddy is a local-first **sprite-buddy creator**. Make a tiny animated companion from your own art, then let it float above your Mac or Windows desktop. It plays your idle frames while resting and your walk frames while you drag it or it glides around.
+DeskBuddy is a local-first **sprite-buddy creator**. Make a tiny animated companion from your own art, then let it float above your Mac or Windows desktop. It plays your idle frames while resting and your walk frames while you drag it or it glides around and loops through the screen edges.
 
 ## Project website
 
@@ -19,11 +19,15 @@ To publish it after pushing this repository to GitHub, open **Settings → Pages
    npm run dev
    ```
 
-4. Choose **Import sprite sheet** or **Draw your own**, then select **Create & launch**.
+4. Choose a **Starter buddy**, **Import sprite sheet**, or **Draw your own**, then select **Create & launch**.
 
-Your buddy appears as only a transparent sprite—no border, white card, hover buttons, heart, or exit control. Drag the sprite itself anywhere. It switches to its walk frames while moving and returns to its idle frames when it stops. With multiple buddies open, each one wanders on its own staggered schedule and picks a different recent direction.
+Your buddy appears as only a transparent sprite—no border, white card, hover buttons, heart, or exit control. Drag the sprite itself anywhere. New buddies start at `112 px` and can be sized from `64 px` to `192 px`. They switch to their walk frames while moving, return to idle when they stop, and wrap to the opposite side after walking fully past any screen edge. With multiple buddies open, each one wanders on its own staggered schedule and picks a different recent direction.
 
 ## Make a sprite
+
+### Pick a starter buddy
+
+Open **Starter buddies**, choose a character, adjust its name and size, then select **Create & launch**. Every bundled starter includes four idle frames and four walking frames with a transparent background.
 
 ### Import a sprite sheet
 

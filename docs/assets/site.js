@@ -45,6 +45,7 @@ document.documentElement.classList.add("js");
   function setToggleState() {
     if (!motionToggle) return;
     pet.classList.toggle("is-paused", motionPaused);
+    motionToggle.setAttribute("aria-pressed", String(motionPaused));
     motionToggle.innerHTML = motionPaused
       ? '<span aria-hidden="true">▶</span> Play animation'
       : '<span aria-hidden="true">Ⅱ</span> Pause animation';

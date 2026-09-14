@@ -9,6 +9,10 @@ const MAX_FRAMES_PER_CLIP = 8;
 const MAX_ANIMATION_BYTES = 12 * 1024 * 1024;
 const MAX_PETS = 30;
 const PET_ID = /^pet-[a-f0-9-]{20,}$/i;
+const MIN_PET_SIZE = 64;
+const DEFAULT_PET_SIZE = 112;
+const MAX_PET_SIZE = 192;
+const PET_WINDOW_PADDING = 42;
 
 let creatorWindow = null;
 let tray = null;
@@ -289,7 +293,7 @@ async function publicPet(pet, imageMode = 'full') {
   const result = {
     id: pet.id,
     name: pet.name,
-    size: numberInRange(pet.size, 96, 260, 156),
+    size: numberInRange(pet.size, MIN_PET_SIZE, MAX_PET_SIZE, DEFAULT_PET_SIZE),
     motion: pet.motion === 'still' ? 'still' : 'wander',
     createdAt: pet.createdAt,
   };
@@ -345,7 +349,7 @@ function createCreatorWindow() {
     height: 820,
     minWidth: 880,
     minHeight: 680,
-    backgroundColor: '#f7f4ee',
+    backgroundColor: '#1e2015',
     title: 'DeskBuddy',
     show: false,
     webPreferences: {
@@ -365,16 +369,44 @@ function createCreatorWindow() {
 }
 
 function petWindowSize(pet) {
-  return numberInRange(pet.size, 96, 260, 156) + 42;
+  return numberInRange(pet.size, MIN_PET_SIZE, MAX_PET_SIZE, DEFAULT_PET_SIZE) + PET_WINDOW_PADDING;
+}
+
+function petSpriteSize(pet) {
+  return numberInRange(pet.size, MIN_PET_SIZE, MAX_PET_SIZE, DEFAULT_PET_SIZE);
+}
+
+function petWindowInset(pet) {
+  return (petWindowSize(pet) - petSpriteSize(pet)) / 2;
 }
 
 function clampedPosition(x, y, pet) {
   const size = petWindowSize(pet);
-  const display = screen.getDisplayNearestPoint({ x, y });
+  const inset = petWindowInset(pet);
+  const display = screen.getDisplayNearestPoint({
+    x: Math.round(x + size / 2),
+    y: Math.round(y + size / 2),
+  });
   const area = display.workArea;
   return {
-    x: Math.round(clamp(x, area.x, Math.max(area.x, area.x + area.width - size))),
-    y: Math.round(clamp(y, area.y, Math.max(area.y, area.y + area.height - size))),
+    x: Math.round(clamp(x, area.x - inset, Math.max(area.x - inset, area.x + area.width - size + inset))),
+    y: Math.round(clamp(y, area.y - inset, Math.max(area.y - inset, area.y + area.height - size + inset))),
+  };
+}
+
+function wrappedAxisPosition(value, minimum, length, spriteSize, inset) {
+  const lowerBoundary = minimum - inset - spriteSize;
+  const span = length + spriteSize;
+  const offset = ((value - lowerBoundary) % span + span) % span;
+  return Math.round(lowerBoundary + offset);
+}
+
+function wrappedPosition(x, y, pet, area) {
+  const spriteSize = petSpriteSize(pet);
+  const inset = petWindowInset(pet);
+  return {
+    x: wrappedAxisPosition(x, area.x, area.width, spriteSize, inset),
+    y: wrappedAxisPosition(y, area.y, area.height, spriteSize, inset),
   };
 }
 
@@ -387,7 +419,7 @@ function stableNumber(value) {
   return hash >>> 0;
 }
 
-function chooseWanderTarget(petId, x, y, pet) {
+function chooseWanderTarget(petId, x, y) {
   const now = Date.now();
   for (const [id, recent] of recentWanderDirections) {
     if (now - recent.startedAt > 6_000) recentWanderDirections.delete(id);
@@ -400,7 +432,10 @@ function chooseWanderTarget(petId, x, y, pet) {
   for (let offset = 0; offset < WANDER_DIRECTIONS.length; offset += 1) {
     const direction = WANDER_DIRECTIONS[(firstDirection + offset) % WANDER_DIRECTIONS.length];
     const distance = 175 + (stableNumber(`${petId}:${now}:${direction.key}`) % 170);
-    const target = clampedPosition(x + direction.x * distance, y + direction.y * distance, pet);
+    const target = {
+      x: x + direction.x * distance,
+      y: y + direction.y * distance,
+    };
     if (Math.hypot(target.x - x, target.y - y) < 44) continue;
     const choice = { target, direction: direction.key };
     if (!fallback) fallback = choice;
@@ -462,11 +497,16 @@ function stopGlide(petId, announceIdle = true) {
   if (announceIdle) sendPetAnimationState(petId, 'idle');
 }
 
-function glidePetWindow(petId, window, target) {
+function glidePetWindow(petId, window, target, pet) {
   stopGlide(petId, false);
   if (window.isDestroyed() || !window.isVisible()) return;
 
   const [startX, startY] = window.getPosition();
+  const windowSize = petWindowSize(pet);
+  const area = screen.getDisplayNearestPoint({
+    x: Math.round(startX + windowSize / 2),
+    y: Math.round(startY + windowSize / 2),
+  }).workArea;
   const direction = target.x < startX ? 'left' : 'right';
   sendPetAnimationState(petId, 'walk', direction);
   const duration = 1900 + Math.round(Math.random() * 700);
@@ -484,11 +524,13 @@ function glidePetWindow(petId, window, target) {
     const eased = progress < 0.5
       ? 2 * progress * progress
       : 1 - ((-2 * progress + 2) ** 2) / 2;
-    window.setPosition(
-      Math.round(startX + (target.x - startX) * eased),
-      Math.round(startY + (target.y - startY) * eased),
-      false,
+    const position = wrappedPosition(
+      startX + (target.x - startX) * eased,
+      startY + (target.y - startY) * eased,
+      pet,
+      area,
     );
+    window.setPosition(position.x, position.y, false);
     if (progress === 1) {
       stopGlide(petId);
       schedulePositionSave(petId, window);
@@ -665,7 +707,7 @@ ipcMain.handle('pets:create', async (event, input) => {
   const pet = {
     id,
     name: cleanName(input?.name),
-    size: numberInRange(input?.size, 96, 260, 156),
+    size: numberInRange(input?.size, MIN_PET_SIZE, MAX_PET_SIZE, DEFAULT_PET_SIZE),
     motion: input?.motion === 'still' ? 'still' : 'wander',
     mimeType,
     imageFile: animationFiles.idle[0],
@@ -768,9 +810,9 @@ ipcMain.handle('pet:nudge', async (event, petId) => {
   if (dragOrigins.has(petId) || glideTimers.has(petId)) return { started: false, retryAfter: 1_800 };
   if (!claimWanderStart()) return { started: false, retryAfter: wanderRetryAfter() };
   const [x, y] = window.getPosition();
-  const next = chooseWanderTarget(petId, x, y, pet);
+  const next = chooseWanderTarget(petId, x, y);
   if (!next) return { started: false, retryAfter: wanderRetryAfter() };
-  glidePetWindow(petId, window, next);
+  glidePetWindow(petId, window, next, pet);
   return { started: true };
 });
 
