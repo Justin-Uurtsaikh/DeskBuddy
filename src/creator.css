@@ -498,32 +498,27 @@ h3 {
 
 .preset-thumb img {
   position: absolute;
-  top: 0;
-  left: 12.5%;
-  width: 300%;
-  height: 200%;
+  top: -5%;
+  left: 8.75%;
+  width: 330%;
+  height: 220%;
   max-width: none;
   object-fit: fill;
   image-rendering: pixelated;
 }
 
 .preset-card-copy {
-  display: grid;
-  gap: 2px;
-  padding: 10px;
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 10px;
+  text-align: center;
 }
 
 .preset-card-copy strong {
   font-family: Georgia, "Times New Roman", serif;
   font-size: 1rem;
-}
-
-.preset-card-copy small {
-  overflow: hidden;
-  color: var(--cedar);
-  font-size: 0.66rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 /* Import */
@@ -868,7 +863,6 @@ h3 {
   width: 100%;
 }
 
-.motion-summary,
 .tip {
   display: flex;
   align-items: flex-start;
@@ -881,7 +875,6 @@ h3 {
   font-size: 0.79rem;
 }
 
-.motion-summary > span:first-child,
 .tip > span:first-child {
   display: grid;
   width: 28px;
@@ -892,16 +885,6 @@ h3 {
   background: var(--cedar);
   border: 1px solid var(--forest-black);
   font-weight: 900;
-}
-
-.motion-summary strong,
-.motion-summary small {
-  display: block;
-}
-
-.motion-summary small {
-  margin-top: 2px;
-  line-height: 1.4;
 }
 
 .form-message {
@@ -952,41 +935,58 @@ h3 {
 
 .preview-stage {
   position: relative;
-  display: grid;
   min-height: 390px;
   overflow: hidden;
-  place-items: center;
-  background: var(--ink);
-  border: 3px solid var(--forest-black);
-}
-
-.preview-stage::before {
-  position: absolute;
-  inset: 28px 24px 92px;
-  content: "";
-  background: var(--paper);
-  border: 3px solid var(--forest-black);
-  box-shadow: 8px 8px 0 var(--bark);
-}
-
-.preview-stage::after {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height: 92px;
-  content: "";
   background: var(--bark);
-  border-top: 4px solid var(--forest-black);
+  border: 5px solid var(--forest-black);
+  box-shadow: inset 0 0 0 4px var(--cedar);
+}
+
+.window-view {
+  position: absolute;
+  z-index: 1;
+  inset: 18px 18px 66px;
+  overflow: hidden;
+  background: var(--pine) url("assets/forest-home.jpg") 58% center / cover no-repeat;
+  border: 7px solid var(--cedar);
+  box-shadow:
+    inset 0 0 0 3px var(--forest-black),
+    5px 5px 0 var(--forest-black);
+  image-rendering: pixelated;
+}
+
+.window-view::before,
+.window-view::after {
+  position: absolute;
+  content: "";
+  background: var(--cedar);
+  border: 2px solid var(--forest-black);
+}
+
+.window-view::before {
+  top: 0;
+  bottom: 0;
+  left: calc(50% - 5px);
+  width: 10px;
+}
+
+.window-view::after {
+  top: calc(52% - 5px);
+  right: 0;
+  left: 0;
+  height: 10px;
 }
 
 .preview-pet {
-  position: relative;
-  z-index: 2;
+  position: absolute;
+  z-index: 5;
+  bottom: 56px;
+  left: 50%;
   display: grid;
-  width: min(66%, 230px);
+  width: min(78%, 255px);
   aspect-ratio: 1;
   place-items: center;
+  transform: translateX(-50%);
   transform-origin: 50% 80%;
 }
 
@@ -1015,11 +1015,25 @@ h3 {
 
 .preview-shadow {
   position: absolute;
-  z-index: 1;
-  bottom: 74px;
-  width: 128px;
-  height: 12px;
+  z-index: 4;
+  bottom: 62px;
+  left: 50%;
+  width: 142px;
+  height: 11px;
   background: rgba(22, 11, 8, 0.68);
+  transform: translateX(-50%);
+}
+
+.window-sill {
+  position: absolute;
+  z-index: 6;
+  right: 5px;
+  bottom: 38px;
+  left: 5px;
+  height: 29px;
+  background: var(--clay);
+  border: 3px solid var(--forest-black);
+  box-shadow: 0 7px 0 var(--forest-black);
 }
 
 @keyframes preview-step {
@@ -1285,6 +1299,23 @@ button:active:not(:disabled) {
   .preview-stage {
     min-height: 350px;
   }
+
+  .window-view {
+    inset: 14px 14px 58px;
+  }
+
+  .preview-pet {
+    bottom: 49px;
+    width: min(72%, 220px);
+  }
+
+  .preview-shadow {
+    bottom: 55px;
+  }
+
+  .window-sill {
+    bottom: 32px;
+  }
 }
 
 @media (max-width: 520px) {
@@ -1321,6 +1352,13 @@ button:active:not(:disabled) {
     aspect-ratio: 1;
     border-right: 2px solid var(--forest-black);
     border-bottom: 0;
+  }
+
+  .preset-thumb img {
+    top: -5%;
+    left: -5%;
+    width: 440%;
+    height: 220%;
   }
 
   .preset-card-copy {
@@ -1386,5 +1424,10 @@ button:active:not(:disabled) {
   .frame-thumb.active {
     outline: 4px solid Highlight;
     outline-offset: 2px;
+  }
+
+  .window-view {
+    background: Canvas;
+    border-color: CanvasText;
   }
 }

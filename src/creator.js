@@ -14,6 +14,10 @@ const PRESETS = Object.freeze({
   miso: { name: 'Miso', sheet: 'assets/presets/miso-sheet.png' },
   taro: { name: 'Taro', sheet: 'assets/presets/taro-sheet.png' },
   honey: { name: 'Honey', sheet: 'assets/presets/honey-sheet.png' },
+  button: { name: 'Button', sheet: 'assets/presets/button-sheet.png' },
+  nori: { name: 'Nori', sheet: 'assets/presets/nori-sheet.png' },
+  maple: { name: 'Maple', sheet: 'assets/presets/maple-sheet.png' },
+  pudding: { name: 'Pudding', sheet: 'assets/presets/pudding-sheet.png' },
 });
 
 const form = document.querySelector('#pet-form');

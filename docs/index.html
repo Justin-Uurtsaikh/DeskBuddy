@@ -14,11 +14,16 @@
     <title>DeskBuddy — Sprout's Desktop Workshop</title>
     <link rel="canonical" href="https://justinuurtsaikh.github.io/DeskBuddy/" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="assets/site.css" />
+    <link rel="stylesheet" href="assets/site.css?v=20260914" />
     <script src="assets/site.js" defer></script>
   </head>
   <body id="top" class="home-body">
     <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <div class="garden-frame" aria-hidden="true">
+      <span class="garden-vine garden-vine--left"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><b></b><b></b><b></b></span>
+      <span class="garden-vine garden-vine--right"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><b></b><b></b><b></b></span>
+    </div>
 
     <svg class="sprite-defs" aria-hidden="true">
       <defs>
@@ -49,22 +54,18 @@
         <div class="hero container">
           <div class="hero-copy" data-reveal>
             <p class="eyebrow">SPROUT'S DESKTOP WORKSHOP</p>
-            <h1 id="hero-title">Make a small friend for your desktop.</h1>
-            <p class="hero-intro">Draw a few frames or bring your own sprite sheet. DeskBuddy turns them into a tiny companion that rests, walks, and wanders across your screen.</p>
+            <h1 id="hero-title">A tiny friend for your desktop.</h1>
+            <p class="hero-intro">Draw one here or bring a sprite sheet you already love. Sprout's workshop turns those little frames into a companion that rests, walks, and wanders across your screen.</p>
             <div class="button-row">
-              <a class="button" href="#how-it-works">Make a buddy <span aria-hidden="true">→</span></a>
-              <a class="button button--secondary" href="guide/">Read the sprite guide</a>
+              <a class="button" href="#how-it-works">See how it works <span aria-hidden="true">→</span></a>
+              <a class="button button--secondary" href="guide/">Open Sprout's field guide</a>
             </div>
-            <ul class="trust-list" aria-label="DeskBuddy highlights">
-              <li>Mac + Windows</li>
-              <li>Stays on your device</li>
-              <li>Open source</li>
-            </ul>
+            <p class="hero-scribble">Made locally. Stays yours.</p>
           </div>
 
           <div class="scene-callout" data-reveal>
             <span class="scene-host" aria-hidden="true"><svg viewBox="0 0 16 16"><use href="#sprout-sprite"></use></svg></span>
-            <span class="scene-callout__copy"><strong>SPROUT</strong><span>Come in. The workshop's open.</span></span>
+            <span class="scene-callout__copy"><strong>SPROUT</strong><span>Come in. I saved you a spot.</span></span>
           </div>
         </div>
       </section>
@@ -111,22 +112,13 @@
         </div>
       </section>
 
-      <div class="proof-strip" aria-label="DeskBuddy capabilities">
-        <div class="container proof-list">
-          <span>Transparent PNGs</span><i aria-hidden="true">◆</i>
-          <span>Idle + walk loops</span><i aria-hidden="true">◆</i>
-          <span>Built-in drawing</span><i aria-hidden="true">◆</i>
-          <span>Screen-edge wrapping</span>
-        </div>
-      </div>
-
       <section id="how-it-works" class="section container">
         <div class="section-heading" data-reveal>
           <div>
             <p class="eyebrow">FROM SKETCH TO SCREEN</p>
-            <h2>Three straightforward steps.</h2>
+            <h2>How a buddy comes to life.</h2>
           </div>
-          <p>No account and no online editor. The whole workshop runs on your computer.</p>
+          <p>Three small steps, all inside the workshop on your computer.</p>
         </div>
 
         <div class="steps-grid">
@@ -158,8 +150,8 @@
       <section id="features" class="section section--tint">
         <div class="container">
           <div class="section-heading" data-reveal>
-            <div><p class="eyebrow">INSIDE THE APP</p><h2>A small set of useful tools.</h2></div>
-            <p>Everything here exists to get a tiny animated character onto your desktop.</p>
+            <div><p class="eyebrow">INSIDE THE APP</p><h2>What's on the workbench.</h2></div>
+            <p>Just the useful parts for drawing, animating, and looking after your little crew.</p>
           </div>
           <div class="feature-grid">
             <article class="feature-card feature-card--studio" data-reveal>
@@ -222,7 +214,7 @@
       </section>
 
       <section class="section container faq-section">
-        <div class="section-heading section-heading--faq" data-reveal><div><p class="eyebrow">NOTES FROM THE WORKBENCH</p><h2>Good to know.</h2></div></div>
+        <div class="section-heading section-heading--faq" data-reveal><div><p class="eyebrow">NOTES FROM THE WORKBENCH</p><h2>A few things Sprout gets asked.</h2></div></div>
         <div class="faq-list" data-reveal>
           <details><summary>What kind of image should I use?<span aria-hidden="true">+</span></summary><p>A transparent PNG sprite sheet with equal square cells. Avoid screenshots, white backgrounds, and fake checkerboards.</p></details>
           <details><summary>Can I draw inside DeskBuddy?<span aria-hidden="true">+</span></summary><p>Yes. The app includes a transparent canvas, brush, eraser, multiple frames, and an optional onion skin.</p></details>
@@ -235,7 +227,7 @@
         <div class="get-started" data-reveal>
           <div class="get-started__copy">
             <p class="eyebrow">THE DOOR IS OPEN</p>
-            <h2>Bring your first buddy home.</h2>
+            <h2>Ready when you are.</h2>
             <p>DeskBuddy currently runs from its source code. Open the project folder, install it once, then start the workshop.</p>
             <div class="button-row">
               <a class="button button--light" href="guide/">Follow the setup guide</a>

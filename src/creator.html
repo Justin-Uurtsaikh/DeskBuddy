@@ -22,7 +22,7 @@
         <div class="hero-copy">
           <p class="eyebrow">SPROUT'S FOREST WORKSHOP</p>
           <h1 id="page-title">Make a little friend.</h1>
-          <p class="intro">Pick a workshop resident, bring a transparent sprite sheet, or draw each frame here. DeskBuddy handles the resting and walking loops.</p>
+          <p class="intro">Pick a buddy, bring a transparent sprite sheet, or draw each frame here. DeskBuddy handles the resting and walking loops.</p>
         </div>
         <div class="hero-bubble">
           <span class="hero-sprout" aria-hidden="true"><img src="assets/presets/sprout-sheet.png" alt="" /></span>
@@ -47,28 +47,44 @@
           </div>
 
           <section id="preset-panel" class="creation-panel preset-panel" aria-labelledby="preset-title">
-            <h3 id="preset-title" class="panel-title">Pick a workshop resident</h3>
-            <p class="panel-copy">These little friends are ready to go. Every one includes a cozy idle loop and a walking animation.</p>
+            <h3 id="preset-title" class="panel-title">Pick your buddy!</h3>
+            <p class="panel-copy">These little buddy's are ready to live on your screen! Every one includes a loop and a little cute walking animation.</p>
             <div class="preset-grid" role="group" aria-label="Premade starter buddies">
               <button class="preset-choice" type="button" data-preset-id="sprout" aria-pressed="false">
                 <span class="preset-thumb" aria-hidden="true"><img src="assets/presets/sprout-sheet.png" alt="" /></span>
-                <span class="preset-card-copy"><strong>Sprout</strong><small>Runs the workshop</small></span>
+                <span class="preset-card-copy"><strong>Sprout</strong></span>
               </button>
               <button class="preset-choice" type="button" data-preset-id="mochi" aria-pressed="false">
                 <span class="preset-thumb" aria-hidden="true"><img src="assets/presets/mochi-sheet.png" alt="" /></span>
-                <span class="preset-card-copy"><strong>Mochi</strong><small>Naps between hops</small></span>
+                <span class="preset-card-copy"><strong>Mochi</strong></span>
               </button>
               <button class="preset-choice" type="button" data-preset-id="miso" aria-pressed="false">
                 <span class="preset-thumb" aria-hidden="true"><img src="assets/presets/miso-sheet.png" alt="" /></span>
-                <span class="preset-card-copy"><strong>Miso</strong><small>Pretends not to care</small></span>
+                <span class="preset-card-copy"><strong>Miso</strong></span>
               </button>
               <button class="preset-choice" type="button" data-preset-id="taro" aria-pressed="false">
                 <span class="preset-thumb" aria-hidden="true"><img src="assets/presets/taro-sheet.png" alt="" /></span>
-                <span class="preset-card-copy"><strong>Taro</strong><small>Flaps, then waddles</small></span>
+                <span class="preset-card-copy"><strong>Taro</strong></span>
               </button>
               <button class="preset-choice" type="button" data-preset-id="honey" aria-pressed="false">
                 <span class="preset-thumb" aria-hidden="true"><img src="assets/presets/honey-sheet.png" alt="" /></span>
-                <span class="preset-card-copy"><strong>Honey</strong><small>Always in a hurry</small></span>
+                <span class="preset-card-copy"><strong>Honey</strong></span>
+              </button>
+              <button class="preset-choice" type="button" data-preset-id="button" aria-pressed="false">
+                <span class="preset-thumb" aria-hidden="true"><img src="assets/presets/button-sheet.png" alt="" /></span>
+                <span class="preset-card-copy"><strong>Button</strong></span>
+              </button>
+              <button class="preset-choice" type="button" data-preset-id="nori" aria-pressed="false">
+                <span class="preset-thumb" aria-hidden="true"><img src="assets/presets/nori-sheet.png" alt="" /></span>
+                <span class="preset-card-copy"><strong>Nori</strong></span>
+              </button>
+              <button class="preset-choice" type="button" data-preset-id="maple" aria-pressed="false">
+                <span class="preset-thumb" aria-hidden="true"><img src="assets/presets/maple-sheet.png" alt="" /></span>
+                <span class="preset-card-copy"><strong>Maple</strong></span>
+              </button>
+              <button class="preset-choice" type="button" data-preset-id="pudding" aria-pressed="false">
+                <span class="preset-thumb" aria-hidden="true"><img src="assets/presets/pudding-sheet.png" alt="" /></span>
+                <span class="preset-card-copy"><strong>Pudding</strong></span>
               </button>
             </div>
             <p id="preset-status" class="panel-status" role="status" aria-live="polite">Choose a starter to preview its animation.</p>
@@ -140,23 +156,23 @@
             <input id="size-input" name="size" type="range" min="64" max="192" value="112" />
           </div>
 
-          <div class="motion-summary"><span aria-hidden="true">↝</span><span><strong>Screen-edge loops are on</strong><small>When your buddy walks off one side, it pops back in from the opposite edge.</small></span></div>
-
           <p id="form-message" class="form-message" role="status" aria-live="polite"></p>
           <button id="create-button" class="primary-button" type="submit">Create &amp; launch <span aria-hidden="true">→</span></button>
         </form>
 
-        <aside class="preview-card" aria-label="Buddy preview">
+        <aside class="preview-card" aria-labelledby="preview-title preview-name">
           <div class="section-heading">
             <p class="step">02</p>
-            <h2>At the window</h2>
+            <h2 id="preview-title">At the window</h2>
           </div>
           <div class="preview-stage">
+            <div class="window-view" aria-hidden="true"></div>
             <div id="preview-pet" class="preview-pet preview-placeholder">
               <img id="preview-image" alt="" hidden />
               <span id="preview-symbol" aria-hidden="true">⌁</span>
             </div>
             <span class="preview-shadow" aria-hidden="true"></span>
+            <span class="window-sill" aria-hidden="true"></span>
           </div>
           <p id="preview-name" class="preview-name">Your new buddy</p>
           <p class="preview-copy">Only your transparent sprite appears on the desktop—no frame, buttons, or white box.</p>
