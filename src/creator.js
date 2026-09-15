@@ -255,7 +255,7 @@ function renderSheetInfo(width, height) {
   const choices = squareGridChoices(width, height);
   sheetGridChosen = false;
   sheetInfo.hidden = false;
-  sheetDimensions.textContent = `${width} × ${height}px sheet · pick a square cell size that matches one full character. Dense sheets often group animation frames in threes.`;
+  sheetDimensions.textContent = `${width} × ${height}px sheet · pick a square cell size that matches one full character.`;
   gridChoices.replaceChildren(...choices.map((choice) => {
     const button = document.createElement('button');
     button.type = 'button';
@@ -395,7 +395,7 @@ async function selectPreset(presetId, { updateName = true } = {}) {
     updatePreviewName();
   }
   presetPanel.setAttribute('aria-busy', 'true');
-  presetStatus.textContent = `Waking ${preset.name}…`;
+  presetStatus.textContent = `Loading ${preset.name}…`;
   if (creationMode === 'preset') {
     if (presetAnimations) playPresetPreview(presetAnimations);
     else setPreview(null);

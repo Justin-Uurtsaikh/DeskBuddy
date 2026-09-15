@@ -89,17 +89,7 @@ h3 {
   padding: 18px 0 90px;
 }
 
-.eyebrow {
-  margin-bottom: 8px;
-  color: var(--cedar);
-  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-  font-size: 0.69rem;
-  font-weight: 900;
-  letter-spacing: 0.13em;
-  line-height: 1.3;
-}
-
-/* Workshop header */
+/* App header */
 
 .topbar {
   display: flex;
@@ -128,8 +118,7 @@ h3 {
   text-transform: uppercase;
 }
 
-.brand-mark,
-.hero-sprout {
+.brand-mark {
   position: relative;
   display: block;
   overflow: hidden;
@@ -144,8 +133,7 @@ h3 {
   box-shadow: 2px 2px 0 var(--cedar);
 }
 
-.brand-mark img,
-.hero-sprout img {
+.brand-mark img {
   position: absolute;
   top: 0;
   left: 0;
@@ -172,44 +160,35 @@ h3 {
   color: var(--gold);
 }
 
-/* Forest cover */
+/* Editor header */
 
 .hero {
   position: relative;
-  display: grid;
-  min-height: 330px;
+  min-height: 0;
   overflow: hidden;
-  align-items: center;
-  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
-  gap: 28px;
   margin-bottom: 28px;
-  padding: 30px;
-  background: var(--forest-black) url("assets/forest-home.jpg") center / cover no-repeat;
+  padding: 22px;
+  background-color: var(--pine);
+  background-image:
+    linear-gradient(rgba(226, 217, 158, 0.1) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(226, 217, 158, 0.1) 2px, transparent 2px);
+  background-size: 18px 18px;
   border: 3px solid var(--forest-black);
   box-shadow: var(--shadow-lg);
-  image-rendering: pixelated;
 }
 
 .hero-copy {
-  align-self: stretch;
-  display: flex;
-  max-width: 650px;
-  flex-direction: column;
-  justify-content: center;
-  padding: 25px 28px;
+  max-width: 780px;
+  padding: 20px 22px;
   color: var(--paper-light);
-  background: rgba(22, 11, 8, 0.92);
-  border: 2px solid var(--gold);
-}
-
-.hero-copy .eyebrow {
-  color: var(--gold);
+  background: var(--forest-black);
+  border-left: 8px solid var(--gold);
 }
 
 .hero h1 {
-  margin-bottom: 12px;
+  margin-bottom: 9px;
   color: var(--sunbeam);
-  font-size: clamp(2.55rem, 5vw, 4.7rem);
+  font-size: clamp(2rem, 4vw, 3.5rem);
 }
 
 .hero .intro {
@@ -217,60 +196,6 @@ h3 {
   margin-bottom: 0;
   color: var(--paper-light);
   font-size: 0.96rem;
-}
-
-.hero-bubble {
-  align-self: end;
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.hero-sprout {
-  width: 112px;
-  height: 112px;
-  background: transparent;
-  border: 0;
-  filter: drop-shadow(5px 6px 0 rgba(22, 11, 8, 0.7));
-}
-
-.hero-note {
-  position: relative;
-  display: grid;
-  max-width: 205px;
-  gap: 3px;
-  padding: 13px 15px;
-  color: var(--forest-black);
-  background: var(--sunbeam);
-  border: 3px solid var(--forest-black);
-  box-shadow: var(--shadow-md);
-}
-
-.hero-note::before {
-  position: absolute;
-  bottom: 19px;
-  left: -16px;
-  width: 13px;
-  height: 13px;
-  content: "";
-  background: var(--sunbeam);
-  border-bottom: 3px solid var(--forest-black);
-  border-left: 3px solid var(--forest-black);
-  transform: rotate(45deg);
-}
-
-.hero-note small {
-  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-  font-size: 0.6rem;
-  font-weight: 900;
-  letter-spacing: 0.1em;
-}
-
-.hero-note strong {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 1rem;
-  line-height: 1.2;
 }
 
 /* Main two-column maker */
@@ -321,26 +246,6 @@ h3 {
 .collection-heading h2 {
   margin: 0;
   font-size: clamp(1.7rem, 3vw, 2.45rem);
-}
-
-.step {
-  display: grid;
-  width: 38px;
-  height: 38px;
-  margin: 0;
-  place-items: center;
-  color: var(--paper-light);
-  background: var(--cedar);
-  border: 2px solid var(--forest-black);
-  box-shadow: 2px 2px 0 var(--forest-black);
-  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-  font-size: 0.69rem;
-  font-weight: 900;
-}
-
-.preview-card .step {
-  color: var(--forest-black);
-  background: var(--gold);
 }
 
 /* Mode tabs and panels */
@@ -863,30 +768,6 @@ h3 {
   width: 100%;
 }
 
-.tip {
-  display: flex;
-  align-items: flex-start;
-  gap: 11px;
-  margin-top: 19px;
-  padding: 12px 14px;
-  color: var(--ink);
-  background: var(--sage);
-  border: 2px solid var(--forest-black);
-  font-size: 0.79rem;
-}
-
-.tip > span:first-child {
-  display: grid;
-  width: 28px;
-  height: 28px;
-  flex: 0 0 auto;
-  place-items: center;
-  color: var(--sunbeam);
-  background: var(--cedar);
-  border: 1px solid var(--forest-black);
-  font-weight: 900;
-}
-
 .form-message {
   min-height: 22px;
   margin: 13px 0 7px;
@@ -947,7 +828,10 @@ h3 {
   z-index: 1;
   inset: 18px 18px 66px;
   overflow: hidden;
-  background: var(--pine) url("assets/forest-home.jpg") 58% center / cover no-repeat;
+  background-color: var(--pine);
+  background-image:
+    repeating-linear-gradient(90deg, transparent 0 40px, rgba(75, 60, 34, 0.42) 40px 47px, transparent 47px 82px),
+    linear-gradient(to bottom, var(--sage) 0 48%, #7d8750 48% 61%, var(--pine) 61% 100%);
   border: 7px solid var(--cedar);
   box-shadow:
     inset 0 0 0 3px var(--forest-black),
@@ -1057,11 +941,6 @@ h3 {
   text-align: center;
 }
 
-.preview-card .tip {
-  color: var(--ink);
-  background: var(--gold);
-}
-
 /* Saved collection */
 
 .collection {
@@ -1071,10 +950,6 @@ h3 {
 
 .collection-heading {
   margin-bottom: 20px;
-}
-
-.collection-heading .eyebrow {
-  margin-bottom: 5px;
 }
 
 .count-label {
@@ -1216,10 +1091,6 @@ button:active:not(:disabled) {
 /* Responsive */
 
 @media (max-width: 960px) {
-  .hero {
-    grid-template-columns: minmax(0, 1fr) 275px;
-  }
-
   .maker-grid {
     grid-template-columns: minmax(0, 1.15fr) minmax(285px, 0.85fr);
     gap: 18px;
@@ -1262,30 +1133,11 @@ button:active:not(:disabled) {
   }
 
   .hero {
-    min-height: 570px;
-    align-items: start;
-    grid-template-columns: 1fr;
     padding: 18px;
-    background-position: 58% center;
   }
 
   .hero-copy {
     padding: 20px;
-  }
-
-  .hero-bubble {
-    position: absolute;
-    right: 18px;
-    bottom: 18px;
-  }
-
-  .hero-sprout {
-    width: 92px;
-    height: 92px;
-  }
-
-  .hero-note {
-    max-width: 180px;
   }
 
   .maker-grid {
@@ -1325,14 +1177,6 @@ button:active:not(:disabled) {
 
   .hero h1 {
     font-size: 2.65rem;
-  }
-
-  .hero-note {
-    padding: 10px 12px;
-  }
-
-  .hero-note strong {
-    font-size: 0.86rem;
   }
 
   .mode-switch,

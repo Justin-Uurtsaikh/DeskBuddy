@@ -1,10 +1,10 @@
 # DeskBuddy
 
-DeskBuddy is a local-first **sprite-buddy creator**. Make a tiny animated companion from your own art, then let it float above your Mac or Windows desktop. It plays your idle frames while resting and your walk frames while you drag it or it glides around and loops through the screen edges.
+DeskBuddy creates animated desktop sprites from a preset, an imported sprite sheet, or frames drawn in the app. Sprites use separate idle and walk animations, move across the desktop, and wrap from one screen edge to the other.
 
 ## Project website
 
-The static DeskBuddy website lives in [`docs/`](docs/index.html), with a visitor-friendly [sprite and setup guide](docs/guide/index.html). It uses plain HTML, CSS, and JavaScript with no build step or third-party assets.
+The static DeskBuddy website lives in [`docs/`](docs/index.html), with a [sprite and setup guide](docs/guide/index.html). It uses plain HTML, CSS, and JavaScript with no build step or third-party assets.
 
 To publish it after pushing this repository to GitHub, open **Settings → Pages**, choose **Deploy from a branch**, then select the `main` branch and `/docs` folder.
 

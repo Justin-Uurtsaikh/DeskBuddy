@@ -1,7 +1,7 @@
 {
   "name": "deskbuddy",
   "version": "0.3.2",
-  "description": "A local-first sprite-buddy creator for animated desktop pets.",
+  "description": "A desktop sprite editor and animation launcher.",
   "main": "main.js",
   "license": "MIT",
   "engines": {

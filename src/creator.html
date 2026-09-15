@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
     <meta name="theme-color" content="#1e2015" />
-    <title>DeskBuddy — Sprout's Workshop</title>
+    <title>DeskBuddy — Sprite Editor</title>
     <link rel="stylesheet" href="creator.css" />
   </head>
   <body>
@@ -20,24 +20,15 @@
 
       <section id="top" class="hero" aria-labelledby="page-title">
         <div class="hero-copy">
-          <p class="eyebrow">SPROUT'S FOREST WORKSHOP</p>
-          <h1 id="page-title">Make a little friend.</h1>
-          <p class="intro">Pick a buddy, bring a transparent sprite sheet, or draw each frame here. DeskBuddy handles the resting and walking loops.</p>
-        </div>
-        <div class="hero-bubble">
-          <span class="hero-sprout" aria-hidden="true"><img src="assets/presets/sprout-sheet.png" alt="" /></span>
-          <span class="hero-note">
-            <small>A NOTE FROM SPROUT</small>
-            <strong>Pick a neighbor—or draw your own.</strong>
-          </span>
+          <h1 id="page-title">Create a desktop buddy</h1>
+          <p class="intro">Choose a starter, import a transparent PNG sprite sheet, or draw the animation frames yourself.</p>
         </div>
       </section>
 
       <section class="maker-grid" aria-label="Create a new DeskBuddy">
         <form id="pet-form" class="form-card" novalidate>
           <div class="section-heading">
-            <p class="step">01</p>
-            <h2>Make a buddy</h2>
+            <h2>Buddy setup</h2>
           </div>
 
           <div class="mode-switch" role="group" aria-label="Choose a creation method">
@@ -47,8 +38,8 @@
           </div>
 
           <section id="preset-panel" class="creation-panel preset-panel" aria-labelledby="preset-title">
-            <h3 id="preset-title" class="panel-title">Pick your buddy!</h3>
-            <p class="panel-copy">These little buddy's are ready to live on your screen! Every one includes a loop and a little cute walking animation.</p>
+            <h3 id="preset-title" class="panel-title">Choose a starter</h3>
+            <p class="panel-copy">Each starter includes an idle loop and a walking loop.</p>
             <div class="preset-grid" role="group" aria-label="Premade starter buddies">
               <button class="preset-choice" type="button" data-preset-id="sprout" aria-pressed="false">
                 <span class="preset-thumb" aria-hidden="true"><img src="assets/presets/sprout-sheet.png" alt="" /></span>
@@ -162,8 +153,7 @@
 
         <aside class="preview-card" aria-labelledby="preview-title preview-name">
           <div class="section-heading">
-            <p class="step">02</p>
-            <h2 id="preview-title">At the window</h2>
+            <h2 id="preview-title">Animation preview</h2>
           </div>
           <div class="preview-stage">
             <div class="window-view" aria-hidden="true"></div>
@@ -176,16 +166,12 @@
           </div>
           <p id="preview-name" class="preview-name">Your new buddy</p>
           <p class="preview-copy">Only your transparent sprite appears on the desktop—no frame, buttons, or white box.</p>
-          <div class="tip"><span aria-hidden="true">↝</span><span>Drag it anywhere. It plays your walk animation while moving.</span></div>
         </aside>
       </section>
 
       <section class="collection" aria-labelledby="collection-title">
         <div class="collection-heading">
-          <div>
-            <p class="eyebrow">YOUR COLLECTION</p>
-            <h2 id="collection-title">Saved buddies</h2>
-          </div>
+          <h2 id="collection-title">Saved buddies</h2>
           <p id="buddy-count" class="count-label">0 buddies</p>
         </div>
         <div id="empty-state" class="empty-state">

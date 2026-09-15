@@ -3,17 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Learn how to install DeskBuddy, prepare a transparent sprite sheet, draw animation frames, and launch your own desktop companion." />
+    <meta name="description" content="Install DeskBuddy, import a transparent sprite sheet, draw animation frames, and launch a desktop sprite." />
     <meta name="theme-color" content="#17150f" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="DeskBuddy Sprite Guide" />
-    <meta property="og:description" content="Install DeskBuddy, prepare a transparent sprite sheet, and launch your own desktop companion." />
-    <meta property="og:url" content="https://justinuurtsaikh.github.io/DeskBuddy/guide/" />
+    <meta property="og:title" content="DeskBuddy Setup and Sprite Guide" />
+    <meta property="og:description" content="Install DeskBuddy, prepare a transparent sprite sheet, and launch a desktop sprite." />
+    <meta property="og:url" content="https://justin-uurtsaikh.github.io/DeskBuddy/guide/" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
-    <title>DeskBuddy Field Guide</title>
-    <link rel="canonical" href="https://justinuurtsaikh.github.io/DeskBuddy/guide/" />
+    <title>DeskBuddy Setup and Sprite Guide</title>
+    <link rel="canonical" href="https://justin-uurtsaikh.github.io/DeskBuddy/guide/" />
     <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="../assets/site.css?v=20260914" />
+    <link rel="stylesheet" href="../assets/site.css?v=20260914b" />
     <script src="../assets/site.js" defer></script>
   </head>
   <body class="guide-body">
@@ -27,7 +27,7 @@
     <svg class="sprite-defs" aria-hidden="true">
       <defs>
         <symbol id="sprout-sprite" viewBox="0 0 16 16">
-          <image href="../assets/sprout-sheet.png" width="64" height="32" preserveAspectRatio="none" />
+          <image href="../assets/sprout-sheet.png?v=20260914b" width="64" height="32" preserveAspectRatio="none" />
         </symbol>
       </defs>
     </svg>
@@ -39,20 +39,17 @@
           <span>DeskBuddy</span>
         </a>
         <nav class="nav-links" aria-label="Primary navigation">
-          <a class="nav-optional" href="../#features">Features</a>
-          <a class="nav-optional" href="../#how-it-works">How it works</a>
-          <a class="nav-optional" href="https://github.com/justinuurtsaikh/DeskBuddy">GitHub</a>
-          <a class="button button--small" href="../#get-started">Run DeskBuddy</a>
+          <a href="../">Home</a>
+          <a href="https://github.com/Justin-Uurtsaikh/DeskBuddy">GitHub</a>
         </nav>
       </div>
     </header>
 
     <main id="guide-content" class="guide-main">
-      <section class="guide-hero container" data-reveal>
+      <section class="guide-hero container">
         <a class="breadcrumb" href="../"><span aria-hidden="true">←</span> Back to DeskBuddy</a>
-        <p class="eyebrow">SPROUT'S FIELD GUIDE</p>
-        <h1>Make your first DeskBuddy.</h1>
-        <p>Install the app from source, bring a transparent sprite sheet—or draw directly in DeskBuddy—and turn a few frames into a tiny companion that lives above your windows.</p>
+        <h1>Set up DeskBuddy</h1>
+        <p>Install the app from source, import a transparent sprite sheet or draw frames in DeskBuddy, and launch the sprite on your desktop.</p>
       </section>
 
       <div class="guide-layout container">
@@ -69,63 +66,39 @@
         </aside>
 
         <article class="guide-content">
-          <section id="setup" class="guide-section" data-reveal>
-            <p class="eyebrow">01 · SET UP</p>
-            <h2>Run DeskBuddy from source.</h2>
+          <section id="setup" class="guide-section">
+            <h2>Install and run DeskBuddy</h2>
             <p>After downloading or cloning the DeskBuddy repository, open a Terminal or PowerShell window in the project folder. You will need the following:</p>
 
-            <div class="requirements-grid">
-              <div class="requirement-card">
-                <span aria-hidden="true">N</span>
-                <strong>Node.js 22.12+</strong>
-                <small>Required to install and launch the Electron app.</small>
-              </div>
-              <div class="requirement-card">
-                <span aria-hidden="true">⌘</span>
-                <strong>macOS 13+</strong>
-                <small>Works on Intel and Apple silicon Macs.</small>
-              </div>
-              <div class="requirement-card">
-                <span aria-hidden="true">⊞</span>
-                <strong>Windows x64</strong>
-                <small>Configured for 64-bit Windows computers.</small>
-              </div>
-            </div>
+            <ul class="requirements-list">
+              <li><strong>Node.js 22.12 or newer</strong> to install and launch the Electron app.</li>
+              <li><strong>macOS 13 or newer</strong> on Intel or Apple silicon, or <strong>64-bit Windows</strong>.</li>
+            </ul>
 
             <div class="code-block">
               <pre><code><b>$</b> npm install
 <b>$</b> npm run dev</code></pre>
             </div>
 
-            <div class="button-row">
-              <a class="button" href="https://github.com/justinuurtsaikh/DeskBuddy">Open the repository</a>
-              <button class="button button--secondary" type="button" data-copy-command>Copy run commands</button>
+            <div class="setup-links">
+              <a href="https://github.com/Justin-Uurtsaikh/DeskBuddy">Open the repository</a>
+              <button type="button" data-copy-command>Copy run commands</button>
             </div>
             <div class="guide-callout"><strong>First launch:</strong> Electron may download its desktop runtime the first time you run the app, so that first start can take a little longer.</div>
           </section>
 
-          <section id="choose-workflow" class="guide-section" data-reveal>
-            <p class="eyebrow">02 · CHOOSE A WORKFLOW</p>
-            <h2>Import it or draw it.</h2>
-            <p>Both creation paths produce the same kind of buddy. Pick whichever fits the way you like to make sprites.</p>
+          <section id="choose-workflow" class="guide-section">
+            <h2>Choose how to create a sprite</h2>
+            <p>Import an existing sprite sheet or draw the idle and walk frames in DeskBuddy.</p>
 
-            <div class="workflow-tabs">
-              <div class="workflow-card">
-                <span aria-hidden="true">↥</span>
-                <h3>Import a sprite sheet</h3>
-                <p>Best when you already animate in Aseprite, Photoshop, Krita, or another art tool.</p>
-              </div>
-              <div class="workflow-card">
-                <span aria-hidden="true">✎</span>
-                <h3>Draw inside DeskBuddy</h3>
-                <p>Best for sketching a small buddy one transparent frame at a time.</p>
-              </div>
-            </div>
+            <dl class="workflow-list">
+              <div><dt>Import a sprite sheet</dt><dd>Use this option for sprite sheets created in Aseprite, Photoshop, Krita, or another art editor.</dd></div>
+              <div><dt>Draw inside DeskBuddy</dt><dd>Use this option to draw transparent idle and walk frames in DeskBuddy.</dd></div>
+            </dl>
           </section>
 
-          <section id="sprite-sheet" class="guide-section" data-reveal>
-            <p class="eyebrow">03 · IMPORT A SHEET</p>
-            <h2>Keep every frame in an equal square cell.</h2>
+          <section id="sprite-sheet" class="guide-section">
+            <h2>Format the sheet as equal square cells</h2>
             <p>A simple layout uses four idle frames across the first row and four walk frames across the second. Each cell should contain one complete pose with the same canvas size.</p>
 
             <div class="guide-sheet checkerboard" aria-label="Example four-column, two-row sprite sheet">
@@ -167,9 +140,8 @@
             <div class="guide-callout guide-callout--peach"><strong>Avoid:</strong> white backgrounds, screenshots with a checkerboard pattern, labels, borders, or grid lines. Those pixels would become part of your buddy.</div>
           </section>
 
-          <section id="draw" class="guide-section" data-reveal>
-            <p class="eyebrow">04 · DRAW YOUR OWN</p>
-            <h2>Animate one pose at a time.</h2>
+          <section id="draw" class="guide-section">
+            <h2>Draw frames in the editor</h2>
             <p>Switch to <strong>Draw your own</strong>. The canvas starts transparent, so erasing restores transparency instead of painting white.</p>
             <ol>
               <li>Draw at least one visible <strong>Idle</strong> frame.</li>
@@ -181,22 +153,19 @@
             <div class="guide-callout"><strong>Onion skin is only a guide.</strong> The faded previous frame is never saved into your finished artwork.</div>
           </section>
 
-          <section id="launch" class="guide-section" data-reveal>
-            <p class="eyebrow">05 · SAY HELLO</p>
-            <h2>Create, launch, and let it wander.</h2>
+          <section id="launch" class="guide-section">
+            <h2>Create and launch the sprite</h2>
             <p>Select <strong>Create &amp; launch</strong>. Only your transparent sprite appears on the desktop—there is no card, toolbar, white box, or visible window frame around it.</p>
             <ul>
-              <li>Drag the sprite itself to move it anywhere.</li>
-              <li>It switches to its walk frames while moving.</li>
-              <li>It returns to its idle loop after stopping.</li>
-              <li>Multiple buddies wander on their own staggered schedules.</li>
+              <li>The sprite uses its walk frames while moving and its idle frames while stopped.</li>
+              <li>A sprite that leaves one edge of the screen returns from the opposite edge.</li>
+              <li>You can launch and manage multiple sprites.</li>
               <li>Use the DeskBuddy tray menu to reopen the creator or quit.</li>
             </ul>
           </section>
 
-          <section id="troubleshooting" class="guide-section" data-reveal>
-            <p class="eyebrow">TROUBLESHOOTING</p>
-            <h2>If something looks off.</h2>
+          <section id="troubleshooting" class="guide-section">
+            <h2>Troubleshooting</h2>
 
             <h3>The buddy has a white or checkerboard box</h3>
             <p>The source image contains those pixels. Export the sprite again with a genuinely transparent background and upload the original PNG file.</p>
@@ -217,7 +186,7 @@
           </section>
 
           <div class="guide-back">
-            <a class="button" href="../">Back to the DeskBuddy website <span aria-hidden="true">→</span></a>
+            <a class="text-link" href="../">Back to DeskBuddy <span aria-hidden="true">→</span></a>
           </div>
         </article>
       </div>
@@ -230,7 +199,7 @@
           <span>DeskBuddy</span>
         </a>
         <div class="footer-links">
-          <a href="https://github.com/justinuurtsaikh/DeskBuddy">GitHub</a>
+          <a href="https://github.com/Justin-Uurtsaikh/DeskBuddy">GitHub</a>
           <a href="../">Home</a>
           <span>MIT licensed</span>
           <span>© <span data-current-year>2026</span></span>
