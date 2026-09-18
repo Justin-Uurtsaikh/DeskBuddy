@@ -380,22 +380,23 @@ h3 {
   display: flex;
   min-width: 0;
   align-items: end;
-  gap: 12px;
-  padding: 10px 14px 10px 6px;
+  gap: 10px;
+  padding: 0;
   color: var(--paper-light);
-  background: rgba(22, 11, 8, 0.78);
-  border-bottom: 3px solid var(--gold);
+  background: transparent;
+  border: 0;
 }
 
 .scene-host {
-  width: clamp(94px, 10vw, 128px);
-  filter: drop-shadow(4px 5px 0 rgba(22, 11, 8, 0.72));
+  width: clamp(104px, 11vw, 142px);
+  filter: drop-shadow(3px 4px 0 rgba(22, 11, 8, 0.72));
 }
 
 .hero-sprite-card > span:last-child {
   display: grid;
   gap: 2px;
-  padding-bottom: 8px;
+  padding: 0 8px 12px 0;
+  text-shadow: 2px 2px 0 var(--forest-black), 0 0 8px rgba(22, 11, 8, 0.92);
 }
 
 .hero-sprite-card strong,
@@ -411,7 +412,7 @@ h3 {
 }
 
 .hero-sprite-card small {
-  color: var(--sage);
+  color: var(--paper-light);
   font-size: 0.65rem;
 }
 
