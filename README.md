@@ -52,6 +52,14 @@ npm run dist
 
 On Windows, the portable `.exe` is created in `release/`. On a Mac, a `.dmg` is created there instead.
 
+## App icon
+
+DeskBuddy uses Sprout's first idle frame for its app and Dock icon. If that source artwork changes, rebuild the icon with:
+
+```sh
+npm run icon
+```
+
 ## Privacy and safety choices
 
 - Sprites are copied into DeskBuddy's private app-data folder; nothing is uploaded.

@@ -13,6 +13,9 @@ const MIN_PET_SIZE = 64;
 const DEFAULT_PET_SIZE = 112;
 const MAX_PET_SIZE = 192;
 const PET_WINDOW_PADDING = 42;
+const APP_ICON_PATH = path.join(__dirname, 'build', 'icon.png');
+
+app.setName('DeskBuddy');
 
 let creatorWindow = null;
 let tray = null;
@@ -350,6 +353,7 @@ function createCreatorWindow() {
     minWidth: 880,
     minHeight: 680,
     backgroundColor: '#1e2015',
+    icon: app.isPackaged ? undefined : APP_ICON_PATH,
     title: 'DeskBuddy',
     show: false,
     webPreferences: {
@@ -880,7 +884,10 @@ function createTray() {
 
 app.whenReady().then(async () => {
   try {
-    app.setName('DeskBuddy');
+    if (!app.isPackaged && process.platform === 'darwin' && app.dock) {
+      const dockIcon = nativeImage.createFromPath(APP_ICON_PATH);
+      if (!dockIcon.isEmpty()) app.dock.setIcon(dockIcon);
+    }
     await ensureStore();
     session.defaultSession.setPermissionCheckHandler(() => false);
     session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false));

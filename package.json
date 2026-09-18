@@ -10,7 +10,8 @@
   "scripts": {
     "dev": "electron .",
     "start": "electron .",
-    "check": "node --check main.js && node --check preload.js && node --check src/creator.js && node --check src/pet.js && node --check docs/assets/site.js",
+    "icon": "node scripts/generate-app-icon.js",
+    "check": "node --check main.js && node --check preload.js && node --check src/creator.js && node --check src/pet.js && node --check docs/assets/site.js && node --check scripts/generate-app-icon.js",
     "dist": "electron-builder"
   },
   "devDependencies": {
@@ -31,6 +32,7 @@
       "package.json"
     ],
     "win": {
+      "icon": "build/icon.png",
       "target": [
         {
           "target": "portable",
@@ -42,6 +44,7 @@
     },
     "mac": {
       "category": "public.app-category.entertainment",
+      "icon": "build/icon.png",
       "target": [
         {
           "target": "dmg",
