@@ -1016,10 +1016,30 @@ h3 {
   gap: 28px;
 }
 
-.footer-shell > p {
-  margin: 0;
+.footer-copy {
+  display: grid;
+  gap: 6px;
   color: var(--sage);
   font-size: 0.82rem;
+}
+
+.footer-copy p {
+  margin: 0;
+}
+
+.footer-copy a {
+  color: var(--paper-light);
+  text-underline-offset: 3px;
+}
+
+.footer-copy a:hover {
+  color: var(--sunbeam);
+  text-decoration-thickness: 2px;
+}
+
+.footer-copy a:focus-visible {
+  outline: 3px solid var(--sunbeam);
+  outline-offset: 3px;
 }
 
 .footer-links {
