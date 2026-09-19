@@ -1,4 +1,11 @@
-const MAX_FRAMES_PER_CLIP = 8;
+const {
+  MAX_FRAMES_PER_CLIP,
+  ERROR_MESSAGES,
+  validateUploadMetadata,
+  validateAnimationFrameCounts,
+  frameRect,
+  friendlyErrorMessage,
+} = window.DeskBuddyCore;
 const MAX_SHEET_COLUMNS = 32;
 const MAX_SHEET_ROWS = 32;
 const DRAW_SIZE = 160;
@@ -230,7 +237,9 @@ function updateGridChoiceState() {
   const columns = Number(layoutInputs.columns.value);
   const rows = Number(layoutInputs.rows.value);
   for (const choice of gridChoices.querySelectorAll('button')) {
-    const selected = Number(choice.dataset.columns) === columns && Number(choice.dataset.rows) === rows;
+    const selected = sheetGridChosen
+      && Number(choice.dataset.columns) === columns
+      && Number(choice.dataset.rows) === rows;
     choice.classList.toggle('active', selected);
     choice.setAttribute('aria-pressed', String(selected));
   }
@@ -272,14 +281,16 @@ function renderSheetInfo(width, height) {
         setMessage();
       } catch (error) {
         importedAnimations = null;
-        setMessage(error.message);
+        setMessage(friendlyErrorMessage(error));
       }
     });
     return button;
   }));
-  const singleRowStrip = choices.find((choice) => choice.rows === 1);
-  if (singleRowStrip) applyGridChoice(singleRowStrip);
-  else updateGridChoiceState();
+  updateGridChoiceState();
+  if (!choices.length) {
+    setSheetStatus('No square frame grid fits this image. Re-export it as a sheet made of equal square cells.');
+  }
+  return choices.length > 0;
 }
 
 async function splitSpriteSheet(imageData, layoutOverride = null) {
@@ -288,19 +299,18 @@ async function splitSpriteSheet(imageData, layoutOverride = null) {
   }
   const layout = layoutOverride || sheetLayout();
   const source = await loadImage(imageData);
-  if (source.naturalWidth % layout.columns !== 0 || source.naturalHeight % layout.rows !== 0) {
-    throw new Error('Use equal sprite cells: the PNG width must divide evenly by columns and its height by rows.');
-  }
-  const frameWidth = source.naturalWidth / layout.columns;
-  const frameHeight = source.naturalHeight / layout.rows;
+  const firstFrame = frameRect(source.naturalWidth, source.naturalHeight, layout, 'idle', 0);
+  const frameWidth = firstFrame.width;
+  const frameHeight = firstFrame.height;
   if (frameWidth < 16 || frameHeight < 16 || frameWidth * frameHeight > 4_000_000) {
-    throw new Error('Each sprite cell needs to be between 16 px and 4 megapixels.');
+    throw new Error('Each frame must be at least 16 × 16 pixels and no larger than 4 megapixels.');
   }
 
   const clips = {};
   for (const clip of ['idle', 'walk']) {
     clips[clip] = [];
     for (let column = 0; column < layout[clip].frames; column += 1) {
+      const sourceFrame = frameRect(source.naturalWidth, source.naturalHeight, layout, clip, column);
       const frame = document.createElement('canvas');
       frame.width = frameWidth;
       frame.height = frameHeight;
@@ -308,10 +318,10 @@ async function splitSpriteSheet(imageData, layoutOverride = null) {
       if (!frameContext) throw new Error('DeskBuddy could not split that sprite sheet.');
       frameContext.drawImage(
         source,
-        (layout[clip].start + column) * frameWidth,
-        layout[clip].row * frameHeight,
-        frameWidth,
-        frameHeight,
+        sourceFrame.x,
+        sourceFrame.y,
+        sourceFrame.width,
+        sourceFrame.height,
         0,
         0,
         frameWidth,
@@ -422,24 +432,19 @@ async function useFile(file) {
   setMessage();
   importedAnimations = null;
   if (!file) return;
-  if (file.type !== 'image/png') {
-    setMessage('Choose a transparent PNG sprite sheet. JPG and WebP files cannot be used.');
-    return;
-  }
-  if (file.size > 5 * 1024 * 1024) {
-    setMessage('Choose a sprite sheet smaller than 5 MB.');
-    return;
-  }
   try {
+    validateUploadMetadata(file);
     const imageData = await readFile(file);
     const details = await window.deskbuddy.validateImage(imageData);
     if (!await imageHasTransparentPixels(imageData)) {
-      throw new Error('This PNG still has a solid background. Export a clean transparent sprite sheet instead.');
+      throw new Error(ERROR_MESSAGES.noTransparentBackground);
     }
     selectedSheetData = imageData;
-    renderSheetInfo(details.width, details.height);
+    const hasGridChoices = renderSheetInfo(details.width, details.height);
     if (sheetGridChosen) await rebuildImportedAnimations();
-    else setSheetStatus('Choose one of the grid sizes above, then set each animation row, start column, and frame count.');
+    else if (hasGridChoices) {
+      setSheetStatus('Choose one of the grid sizes above, then set each animation row, start column, and frame count.');
+    }
   } catch (error) {
     selectedSheetData = null;
     selectedSheetMeta = null;
@@ -448,7 +453,7 @@ async function useFile(file) {
     gridChoices.replaceChildren();
     setPreview(null);
     setSheetStatus();
-    setMessage(error.message);
+    setMessage(friendlyErrorMessage(error));
   }
 }
 
@@ -619,10 +624,8 @@ async function exportedDrawingAnimations() {
     for (const frame of drawingFrames[clip]) {
       if (await imageHasVisiblePixels(frame)) animations[clip].push(frame);
     }
-    if (!animations[clip].length) {
-      throw new Error(`Draw at least one visible ${clip} frame before creating your buddy.`);
-    }
   }
+  validateAnimationFrameCounts(animations);
   return animations;
 }
 
@@ -682,7 +685,7 @@ function makePetCard(pet) {
 }
 
 function showError(error) {
-  setMessage(error?.message || 'Something went wrong. Please try again.');
+  setMessage(friendlyErrorMessage(error));
 }
 
 async function refreshPets() {
@@ -758,7 +761,7 @@ for (const input of Object.values(layoutInputs)) {
     } catch (error) {
       importedAnimations = null;
       setSheetStatus('Check your row, column, and frame values.');
-      setMessage(error.message);
+      setMessage(friendlyErrorMessage(error));
     }
   });
 }

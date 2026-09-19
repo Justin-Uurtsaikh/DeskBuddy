@@ -1,5 +1,7 @@
 # DeskBuddy
 
+[![Quality checks](https://github.com/Justin-Uurtsaikh/DeskBuddy/actions/workflows/quality.yml/badge.svg)](https://github.com/Justin-Uurtsaikh/DeskBuddy/actions/workflows/quality.yml)
+
 DeskBuddy creates animated desktop sprites from a preset, an imported sprite sheet, or frames drawn in the app. Sprites use separate idle and walk animations, move across the desktop, and wrap from one screen edge to the other.
 
 <picture>
@@ -41,7 +43,7 @@ Open **Starter buddies**, choose a character, adjust its name and size, then sel
 DeskBuddy accepts a **transparent PNG only!!!!**
 After upload, it shows multiple square-cell grid choices such as `4 × 1 · 256px` or `12 × 8 · 32px`. Pick the one that puts one complete character in each cell, then choose each clip's row, starting column, and frame count. A common layout is four idle frames on row 1 and four walk frames on row 2.
 
-The source must be the clean PNG sprite sheet—not a screenshot with a checkerboard background, labels, grid lines, borders, or a white background. JPG and WebP files are deliberately rejected because they cannot reliably preserve transparency.
+The source must be the clean PNG sprite sheet—not a screenshot with a checkerboard background, labels, grid lines, borders, or a white background. DeskBuddy's sprite validation and packaging currently support PNG files only.
 
 ### Drawing a sprite in DeskBuddy
 
@@ -76,9 +78,19 @@ npm run icon
 
 ## Development check
 
+Run the automated tests on their own with:
+
+```sh
+npm test
+```
+
+Run the full local quality check with:
+
 ```sh
 npm run check
 ```
+
+GitHub Actions runs the same quality check automatically on every push and pull request.
 
 Regenerate the README animation and its reduced-motion still from Sprout's bundled walk frames with:
 

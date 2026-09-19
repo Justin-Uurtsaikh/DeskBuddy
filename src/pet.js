@@ -1,3 +1,5 @@
+const { animationFramesForState, animationFrameAt } = window.DeskBuddyCore;
+
 const petId = new URLSearchParams(window.location.search).get('petId');
 const stage = document.querySelector('#stage');
 const shell = document.querySelector('#pet-shell');
@@ -48,15 +50,14 @@ function clearFrameTimer() {
 }
 
 function framesForState(state) {
-  const clip = animationClips[state];
-  return Array.isArray(clip) && clip.length > 0 ? clip : animationClips.idle;
+  return animationFramesForState(animationClips, state);
 }
 
 function showFrame(index = 0) {
-  const frames = framesForState(animationState);
-  if (!frames.length) return;
-  animationIndex = ((index % frames.length) + frames.length) % frames.length;
-  image.src = frames[animationIndex];
+  const selected = animationFrameAt(animationClips, animationState, index);
+  if (!selected.frame) return;
+  animationIndex = selected.index;
+  image.src = selected.frame;
 }
 
 function playFrames(reset = true) {

@@ -2,17 +2,24 @@ const { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, screen, session,
 const crypto = require('crypto');
 const fs = require('fs/promises');
 const path = require('path');
+const {
+  MAX_IMAGE_PIXELS,
+  MAX_FRAMES_PER_CLIP,
+  ERROR_MESSAGES,
+  clamp,
+  normalizePetSize,
+  petWindowMetrics,
+  decodePngDataUrl,
+  validatePngHeader,
+  validatePixelInfo,
+  validateAnimationFrameCounts,
+  validateAnimationByteSize,
+  wrappedPosition: wrapPositionInArea,
+  friendlyErrorMessage,
+} = require('./src/core');
 
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
-const MAX_IMAGE_PIXELS = 16_000_000;
-const MAX_FRAMES_PER_CLIP = 8;
-const MAX_ANIMATION_BYTES = 12 * 1024 * 1024;
 const MAX_PETS = 30;
 const PET_ID = /^pet-[a-f0-9-]{20,}$/i;
-const MIN_PET_SIZE = 64;
-const DEFAULT_PET_SIZE = 112;
-const MAX_PET_SIZE = 192;
-const PET_WINDOW_PADDING = 42;
 const APP_ICON_PATH = path.join(__dirname, 'build', 'icon.png');
 
 app.setName('DeskBuddy');
@@ -131,15 +138,6 @@ function validPetId(id) {
   return typeof id === 'string' && PET_ID.test(id);
 }
 
-function clamp(value, minimum, maximum) {
-  return Math.min(Math.max(value, minimum), maximum);
-}
-
-function numberInRange(value, minimum, maximum, fallback) {
-  const number = Number(value);
-  return Number.isFinite(number) ? Math.round(clamp(number, minimum, maximum)) : fallback;
-}
-
 function cleanName(value) {
   const name = String(value || '').replace(/[\r\n\t]/g, ' ').replace(/\s+/g, ' ').trim();
   return name.slice(0, 36) || 'New buddy';
@@ -149,89 +147,20 @@ function imageExtension(mimeType) {
   return { 'image/png': 'png' }[mimeType];
 }
 
-function pngHasTransparencyChannel(buffer) {
-  const colorType = buffer[25];
-  if (colorType === 4 || colorType === 6) return true;
-
-  let offset = 8;
-  while (offset + 12 <= buffer.length) {
-    const length = buffer.readUInt32BE(offset);
-    const type = buffer.subarray(offset + 4, offset + 8).toString('ascii');
-    if (offset + 12 + length > buffer.length) break;
-    if (type === 'tRNS' && length > 0) return true;
-    if (type === 'IEND') break;
-    offset += 12 + length;
-  }
-  return false;
-}
-
-function imageDetails(buffer) {
-  if (buffer.length >= 26 && buffer.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])) && buffer.subarray(12, 16).toString('ascii') === 'IHDR') {
-    return {
-      mimeType: 'image/png',
-      width: buffer.readUInt32BE(16),
-      height: buffer.readUInt32BE(20),
-      hasTransparencyChannel: pngHasTransparencyChannel(buffer),
-    };
-  }
-
-  throw new Error('DeskBuddy could not verify that image. Choose a transparent PNG file.');
-}
-
-function nativeImagePixelInfo(image) {
-  const bitmap = image.toBitmap();
-  let hasTransparency = false;
-  let hasVisiblePixels = false;
-  for (let index = 3; index < bitmap.length; index += 4) {
-    if (bitmap[index] < 250) hasTransparency = true;
-    if (bitmap[index] > 4) hasVisiblePixels = true;
-    if (hasTransparency && hasVisiblePixels) break;
-  }
-  return { hasTransparency, hasVisiblePixels };
-}
-
 function decodeImage(dataUrl) {
-  if (typeof dataUrl !== 'string') throw new Error('Choose an image before creating a buddy.');
-  if (dataUrl.length > Math.ceil(MAX_IMAGE_BYTES * 4 / 3) + 96) {
-    throw new Error('Choose an image smaller than 5 MB.');
-  }
-  const match = /^data:(image\/png);base64,([A-Za-z0-9+/=\r\n]+)$/i.exec(dataUrl);
-  if (!match) throw new Error('DeskBuddy accepts transparent PNG images only.');
-
-  const encodedImage = match[2].replace(/[\r\n]/g, '');
-  if (encodedImage.length > Math.ceil(MAX_IMAGE_BYTES * 4 / 3) + 8) {
-    throw new Error('Choose an image smaller than 5 MB.');
-  }
-  const buffer = Buffer.from(encodedImage, 'base64');
-  if (!buffer.length || buffer.length > MAX_IMAGE_BYTES) {
-    throw new Error('Choose an image smaller than 5 MB.');
-  }
-
-  const details = imageDetails(buffer);
-  if (details.mimeType !== 'image/png' || !details.hasTransparencyChannel) {
-    throw new Error('Use a PNG with a transparent background. A white-background PNG will still look like a box.');
-  }
-  if (!details.width || !details.height || details.width * details.height > MAX_IMAGE_PIXELS) {
-    throw new Error('Choose a valid image smaller than 16 megapixels.');
-  }
+  const buffer = decodePngDataUrl(dataUrl);
+  const details = validatePngHeader(buffer);
 
   const native = nativeImage.createFromBuffer(buffer);
   const { width, height } = native.getSize();
   if (!width || !height || width * height > MAX_IMAGE_PIXELS) {
-    throw new Error('Choose a valid image smaller than 16 megapixels.');
+    throw new Error(ERROR_MESSAGES.imageTooLarge);
   }
-  const pixelInfo = nativeImagePixelInfo(native);
-  if (!pixelInfo.hasTransparency) {
-    throw new Error('Use a PNG with a transparent background. A white-background PNG will still look like a box.');
-  }
-  if (!pixelInfo.hasVisiblePixels) throw new Error('That sprite frame is blank. Draw or import a visible character.');
+  validatePixelInfo(native.toBitmap());
   return { buffer, mimeType: details.mimeType, width, height, hasTransparencyChannel: details.hasTransparencyChannel };
 }
 
-function decodeAnimationClip(value, label) {
-  if (!Array.isArray(value) || value.length < 1 || value.length > MAX_FRAMES_PER_CLIP) {
-    throw new Error(`${label} needs between 1 and ${MAX_FRAMES_PER_CLIP} transparent PNG frames.`);
-  }
+function decodeAnimationClip(value) {
   return value.map((frame) => decodeImage(frame));
 }
 
@@ -241,16 +170,15 @@ function decodeAnimations(input) {
     const image = decodeImage(input?.imageData);
     return { idle: [image], walk: [image] };
   }
+  validateAnimationFrameCounts(rawAnimations);
 
   const animations = {
-    idle: decodeAnimationClip(rawAnimations.idle, 'Idle animation'),
-    walk: decodeAnimationClip(rawAnimations.walk, 'Walk animation'),
+    idle: decodeAnimationClip(rawAnimations.idle),
+    walk: decodeAnimationClip(rawAnimations.walk),
   };
   const totalBytes = [...animations.idle, ...animations.walk]
     .reduce((total, frame) => total + frame.buffer.length, 0);
-  if (totalBytes > MAX_ANIMATION_BYTES) {
-    throw new Error('Keep all animation frames under 12 MB total.');
-  }
+  validateAnimationByteSize(totalBytes);
   return animations;
 }
 
@@ -296,7 +224,7 @@ async function publicPet(pet, imageMode = 'full') {
   const result = {
     id: pet.id,
     name: pet.name,
-    size: numberInRange(pet.size, MIN_PET_SIZE, MAX_PET_SIZE, DEFAULT_PET_SIZE),
+    size: normalizePetSize(pet.size),
     motion: pet.motion === 'still' ? 'still' : 'wander',
     createdAt: pet.createdAt,
   };
@@ -373,15 +301,15 @@ function createCreatorWindow() {
 }
 
 function petWindowSize(pet) {
-  return numberInRange(pet.size, MIN_PET_SIZE, MAX_PET_SIZE, DEFAULT_PET_SIZE) + PET_WINDOW_PADDING;
+  return petWindowMetrics(pet.size).windowSize;
 }
 
 function petSpriteSize(pet) {
-  return numberInRange(pet.size, MIN_PET_SIZE, MAX_PET_SIZE, DEFAULT_PET_SIZE);
+  return petWindowMetrics(pet.size).spriteSize;
 }
 
 function petWindowInset(pet) {
-  return (petWindowSize(pet) - petSpriteSize(pet)) / 2;
+  return petWindowMetrics(pet.size).inset;
 }
 
 function clampedPosition(x, y, pet) {
@@ -398,20 +326,10 @@ function clampedPosition(x, y, pet) {
   };
 }
 
-function wrappedAxisPosition(value, minimum, length, spriteSize, inset) {
-  const lowerBoundary = minimum - inset - spriteSize;
-  const span = length + spriteSize;
-  const offset = ((value - lowerBoundary) % span + span) % span;
-  return Math.round(lowerBoundary + offset);
-}
-
 function wrappedPosition(x, y, pet, area) {
   const spriteSize = petSpriteSize(pet);
   const inset = petWindowInset(pet);
-  return {
-    x: wrappedAxisPosition(x, area.x, area.width, spriteSize, inset),
-    y: wrappedAxisPosition(y, area.y, area.height, spriteSize, inset),
-  };
+  return wrapPositionInArea(x, y, area, spriteSize, inset);
 }
 
 function stableNumber(value) {
@@ -711,7 +629,7 @@ ipcMain.handle('pets:create', async (event, input) => {
   const pet = {
     id,
     name: cleanName(input?.name),
-    size: numberInRange(input?.size, MIN_PET_SIZE, MAX_PET_SIZE, DEFAULT_PET_SIZE),
+    size: normalizePetSize(input?.size),
     motion: input?.motion === 'still' ? 'still' : 'wander',
     mimeType,
     imageFile: animationFiles.idle[0],
@@ -897,7 +815,10 @@ app.whenReady().then(async () => {
 
     app.on('activate', () => createCreatorWindow());
   } catch (error) {
-    dialog.showErrorBox('DeskBuddy could not start', error?.message || 'DeskBuddy could not access its local storage.');
+    dialog.showErrorBox(
+      'DeskBuddy could not start',
+      friendlyErrorMessage(error, 'DeskBuddy could not access its local storage.'),
+    );
     app.quit();
   }
 });
