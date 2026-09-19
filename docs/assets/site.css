@@ -714,6 +714,13 @@ h3 {
   margin-bottom: 0;
 }
 
+.local-note .build-note {
+  margin-top: 8px;
+  color: var(--gold);
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 0.78rem;
+}
+
 .get-started {
   display: grid;
   align-items: start;

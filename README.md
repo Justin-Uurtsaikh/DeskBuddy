@@ -2,6 +2,13 @@
 
 DeskBuddy creates animated desktop sprites from a preset, an imported sprite sheet, or frames drawn in the app. Sprites use separate idle and walk animations, move across the desktop, and wrap from one screen edge to the other.
 
+<picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/deskbuddy-demo-still.png">
+  <img src="docs/assets/deskbuddy-demo.gif" alt="Sprout walking across the DeskBuddy desktop preview" width="640" height="360">
+</picture>
+
+Built with Electron and JavaScript.
+
 ## Project website
 
 The static DeskBuddy website lives in [`docs/`](docs/index.html), with a [sprite and setup guide](docs/guide/index.html). It uses plain HTML, CSS, and JavaScript with no build step or third-party assets.
@@ -71,6 +78,12 @@ npm run icon
 
 ```sh
 npm run check
+```
+
+Regenerate the README animation and its reduced-motion still from Sprout's bundled walk frames with:
+
+```sh
+npm run demo-gif
 ```
 
 This project includes source code only. Run it on your Mac or Windows desktop to test the transparent companion window, then package it with `npm run dist`.

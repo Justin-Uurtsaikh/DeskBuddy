@@ -11,7 +11,8 @@
     "dev": "electron .",
     "start": "electron .",
     "icon": "node scripts/generate-app-icon.js",
-    "check": "node --check main.js && node --check preload.js && node --check src/creator.js && node --check src/pet.js && node --check docs/assets/site.js && node --check scripts/generate-app-icon.js",
+    "demo-gif": "node scripts/generate-demo-gif.js",
+    "check": "node --check main.js && node --check preload.js && node --check src/creator.js && node --check src/pet.js && node --check docs/assets/site.js && node --check scripts/generate-app-icon.js && node --check scripts/generate-demo-gif.js",
     "dist": "electron-builder"
   },
   "devDependencies": {
