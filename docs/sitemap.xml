@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://justin-uurtsaikh.github.io/DeskBuddy/</loc>
+    <lastmod>2026-09-20</lastmod>
+    <image:image>
+      <image:loc>https://justin-uurtsaikh.github.io/DeskBuddy/assets/forest-home.jpg</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://justin-uurtsaikh.github.io/DeskBuddy/assets/deskbuddy-demo-still.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://justin-uurtsaikh.github.io/DeskBuddy/assets/sprout-sheet.png</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://justin-uurtsaikh.github.io/DeskBuddy/guide/</loc>
+    <lastmod>2026-09-20</lastmod>
+    <image:image>
+      <image:loc>https://justin-uurtsaikh.github.io/DeskBuddy/assets/sprout-sheet.png</image:loc>
+    </image:image>
+  </url>
+</urlset>

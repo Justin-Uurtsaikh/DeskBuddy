@@ -3,18 +3,32 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Create an animated desktop sprite from a preset, an imported PNG sprite sheet, or frames drawn in DeskBuddy." />
+    <meta name="description" content="DeskBuddy is Justin Uurtsaikh’s open-source desktop sprite app for importing transparent PNG sprite sheets or drawing idle and walking animations." />
+    <meta name="author" content="Justin Uurtsaikh" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="theme-color" content="#17150f" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="DeskBuddy" />
-    <meta property="og:description" content="Create and run animated desktop sprites on macOS and Windows." />
+    <meta property="og:site_name" content="DeskBuddy" />
+    <meta property="og:title" content="DeskBuddy — Custom PNG Desktop Sprites by Justin Uurtsaikh" />
+    <meta property="og:description" content="Import a transparent PNG sprite sheet or draw your own frames, then run the character as an animated desktop sprite." />
     <meta property="og:url" content="https://justin-uurtsaikh.github.io/DeskBuddy/" />
-    <meta property="og:image" content="https://justin-uurtsaikh.github.io/DeskBuddy/assets/forest-home.jpg" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
-    <title>DeskBuddy</title>
+    <meta property="og:image" content="https://justin-uurtsaikh.github.io/DeskBuddy/assets/deskbuddy-demo-still.png" />
+    <meta property="og:image:width" content="640" />
+    <meta property="og:image:height" content="360" />
+    <meta property="og:image:alt" content="Sprout walking across the DeskBuddy desktop sprite preview" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="DeskBuddy — Custom PNG Desktop Sprites" />
+    <meta name="twitter:description" content="An open-source desktop sprite app by Justin Uurtsaikh." />
+    <meta name="twitter:image" content="https://justin-uurtsaikh.github.io/DeskBuddy/assets/deskbuddy-demo-still.png" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-2UqxwMdr6GouWzeFCn6mtNxLU2Q44o9i+QG18HmslWE='; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+    <title>DeskBuddy — Custom PNG Desktop Sprites by Justin Uurtsaikh</title>
     <link rel="canonical" href="https://justin-uurtsaikh.github.io/DeskBuddy/" />
+    <link rel="author" href="https://github.com/Justin-Uurtsaikh" />
+    <link rel="me" href="https://github.com/Justin-Uurtsaikh" />
+    <link rel="sitemap" type="application/xml" href="https://justin-uurtsaikh.github.io/DeskBuddy/sitemap.xml" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="assets/site.css?v=20260918c" />
+    <link rel="stylesheet" href="assets/site.css?v=20260920a" />
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"DeskBuddy","description":"DeskBuddy is Justin Uurtsaikh’s open-source desktop sprite app for importing transparent PNG sprite sheets or drawing idle and walking animations.","url":"https://justin-uurtsaikh.github.io/DeskBuddy/","author":{"@type":"Person","name":"Justin Uurtsaikh","url":"https://github.com/Justin-Uurtsaikh"},"applicationCategory":"DesktopEnhancementApplication","operatingSystem":"macOS 13 or newer, 64-bit Windows","softwareVersion":"0.3.2","image":"https://justin-uurtsaikh.github.io/DeskBuddy/assets/deskbuddy-demo-still.png","downloadUrl":"https://github.com/Justin-Uurtsaikh/DeskBuddy/archive/refs/heads/main.zip","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
     <script src="assets/site.js" defer></script>
   </head>
   <body id="top" class="home-body">
@@ -52,10 +66,11 @@
         <div class="hero container">
           <div class="hero-copy">
             <h1 id="hero-title">DeskBuddy</h1>
-            <p class="hero-intro">Draw a pixel character or import a sprite sheet. DeskBuddy gives it idle and walking animations on your desktop.</p>
+            <p class="hero-intro">DeskBuddy is an open-source desktop sprite app by <a href="https://github.com/Justin-Uurtsaikh">Justin Uurtsaikh</a>. Import a transparent PNG sprite sheet or draw a pixel character, then run it with idle and walking animations on macOS or Windows.</p>
             <div class="hero-links">
-              <a href="#meet-sprout">Try the movement demo</a>
-              <a href="guide/">Setup and sprite guide</a>
+              <a href="#get-started">Run DeskBuddy</a>
+              <a href="#meet-sprout">Try the demo</a>
+              <a href="guide/">PNG sprite guide</a>
             </div>
           </div>
 
@@ -92,6 +107,14 @@
               <button id="motion-toggle" class="motion-toggle" type="button" aria-pressed="false"><span aria-hidden="true">Ⅱ</span> Pause animation</button>
             </figcaption>
           </figure>
+
+          <figure class="walkthrough-demo">
+            <picture>
+              <source media="(prefers-reduced-motion: reduce)" srcset="assets/deskbuddy-demo-still.png" />
+              <img src="assets/deskbuddy-demo.gif" alt="Sprout walking across a desktop in DeskBuddy" width="640" height="360" loading="lazy" />
+            </picture>
+            <figcaption>Sprout using its walking frames in the DeskBuddy desktop preview.</figcaption>
+          </figure>
         </div>
       </section>
 
@@ -118,7 +141,7 @@
         <div>
           <h2 id="local-title">Runs locally</h2>
           <p>Your sprite files stay on this computer. DeskBuddy has no account or upload service.</p>
-          <p class="build-note">Built with Electron and JavaScript.</p>
+          <p class="build-note">Version 0.3.2. Free and MIT licensed. Built with Electron and JavaScript.</p>
         </div>
       </section>
 
@@ -126,8 +149,9 @@
         <div class="get-started">
           <div class="get-started__copy">
             <h2>Run DeskBuddy</h2>
-            <p>DeskBuddy currently runs from source on macOS 13+ and 64-bit Windows. Open a terminal in the project folder, then run:</p>
+            <p>DeskBuddy currently runs from source on macOS 13+ and 64-bit Windows. Download or clone the project, open a terminal in the DeskBuddy folder, then run:</p>
             <div class="setup-links">
+              <a href="https://github.com/Justin-Uurtsaikh/DeskBuddy/archive/refs/heads/main.zip">Download source (.zip)</a>
               <a href="guide/">Full setup notes</a>
               <a href="https://github.com/Justin-Uurtsaikh/DeskBuddy">Source on GitHub</a>
               <button type="button" data-copy-command>Copy commands</button>

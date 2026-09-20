@@ -1,7 +1,25 @@
 {
   "name": "deskbuddy",
   "version": "0.3.2",
-  "description": "A desktop sprite editor and animation launcher.",
+  "description": "Create animated desktop sprites from transparent PNG sprite sheets or frames drawn in DeskBuddy.",
+  "author": "Justin Uurtsaikh",
+  "homepage": "https://justin-uurtsaikh.github.io/DeskBuddy/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Justin-Uurtsaikh/DeskBuddy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Justin-Uurtsaikh/DeskBuddy/issues"
+  },
+  "keywords": [
+    "electron",
+    "desktop-pet",
+    "desktop-sprite",
+    "sprite-animation",
+    "sprite-sheet",
+    "pixel-art",
+    "png"
+  ],
   "main": "main.js",
   "license": "MIT",
   "engines": {
@@ -13,7 +31,7 @@
     "icon": "node scripts/generate-app-icon.js",
     "demo-gif": "node scripts/generate-demo-gif.js",
     "test": "node --test",
-    "check": "node --check main.js && node --check preload.js && node --check src/core.js && node --check src/creator.js && node --check src/pet.js && node --check docs/assets/site.js && node --check scripts/generate-app-icon.js && node --check scripts/generate-demo-gif.js && node --check test/core.test.js && npm test",
+    "check": "node --check main.js && node --check preload.js && node --check src/core.js && node --check src/creator.js && node --check src/pet.js && node --check docs/assets/site.js && node --check scripts/generate-app-icon.js && node --check scripts/generate-demo-gif.js && node --check test/core.test.js && node --check test/seo.test.js && npm test",
     "dist": "electron-builder"
   },
   "devDependencies": {

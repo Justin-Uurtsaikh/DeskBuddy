@@ -2,7 +2,9 @@
 
 [![Quality checks](https://github.com/Justin-Uurtsaikh/DeskBuddy/actions/workflows/quality.yml/badge.svg)](https://github.com/Justin-Uurtsaikh/DeskBuddy/actions/workflows/quality.yml)
 
-DeskBuddy creates animated desktop sprites from a preset, an imported sprite sheet, or frames drawn in the app. Sprites use separate idle and walk animations, move across the desktop, and wrap from one screen edge to the other.
+DeskBuddy is an open-source desktop sprite app by Justin Uurtsaikh. Import a transparent PNG sprite sheet or draw your own frames, then run the character with idle and walking animations on macOS or Windows.
+
+[Website](https://justin-uurtsaikh.github.io/DeskBuddy/) · [Transparent PNG sprite guide](https://justin-uurtsaikh.github.io/DeskBuddy/guide/) · [Download source](https://github.com/Justin-Uurtsaikh/DeskBuddy/archive/refs/heads/main.zip) · [Report an issue](https://github.com/Justin-Uurtsaikh/DeskBuddy/issues)
 
 <picture>
   <source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/deskbuddy-demo-still.png">
@@ -13,9 +15,7 @@ Built with Electron and JavaScript.
 
 ## Project website
 
-The static DeskBuddy website lives in [`docs/`](docs/index.html), with a [sprite and setup guide](docs/guide/index.html). It uses plain HTML, CSS, and JavaScript with no build step or third-party assets.
-
-To publish it after pushing this repository to GitHub, open **Settings → Pages**, choose **Deploy from a branch**, then select the `main` branch and `/docs` folder.
+The [live DeskBuddy website](https://justin-uurtsaikh.github.io/DeskBuddy/) is published from [`docs/`](docs/index.html), with a dedicated [transparent PNG sprite and setup guide](https://justin-uurtsaikh.github.io/DeskBuddy/guide/). It uses plain HTML, CSS, and JavaScript with no build step or third-party assets.
 
 ## Run it on Mac or Windows
 
@@ -40,7 +40,7 @@ Open **Starter buddies**, choose a character, adjust its name and size, then sel
 
 ### Import a sprite sheet
 
-DeskBuddy accepts a **transparent PNG only!!!!**
+DeskBuddy accepts transparent PNG sprite sheets with real transparent pixels.
 After upload, it shows multiple square-cell grid choices such as `4 × 1 · 256px` or `12 × 8 · 32px`. Pick the one that puts one complete character in each cell, then choose each clip's row, starting column, and frame count. A common layout is four idle frames on row 1 and four walk frames on row 2.
 
 The source must be the clean PNG sprite sheet—not a screenshot with a checkerboard background, labels, grid lines, borders, or a white background. DeskBuddy's sprite validation and packaging currently support PNG files only.
