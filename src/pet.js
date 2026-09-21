@@ -1,4 +1,4 @@
-const { animationFramesForState, animationFrameAt } = window.DeskBuddyCore;
+const { animationFramesForState, animationFrameAt } = window.DeskpriteCore;
 
 const petId = new URLSearchParams(window.location.search).get('petId');
 const stage = document.querySelector('#stage');
@@ -83,7 +83,7 @@ function queueDrag() {
   if (animationFrame || !latestPoint || !pet || !dragReady || dragIsEnding) return;
   animationFrame = window.requestAnimationFrame(() => {
     animationFrame = null;
-    window.deskbuddy.pet.moveDrag({ petId: pet.id, ...latestPoint }).catch(() => undefined);
+    window.deskprite.pet.moveDrag({ petId: pet.id, ...latestPoint }).catch(() => undefined);
   });
 }
 
@@ -97,7 +97,7 @@ function beginDrag(event) {
   stage.classList.add('dragging');
   stage.setPointerCapture(pointerId);
   const activePointerId = pointerId;
-  dragStartTask = window.deskbuddy.pet.startDrag({ petId: pet.id, ...latestPoint })
+  dragStartTask = window.deskprite.pet.startDrag({ petId: pet.id, ...latestPoint })
     .then(() => {
       if (pointerId === activePointerId && !dragIsEnding) {
         dragReady = true;
@@ -132,8 +132,8 @@ async function endDrag(event) {
   try {
     const started = await dragStartTask;
     if (started && pet && pointerId === activePointerId) {
-      await window.deskbuddy.pet.moveDrag({ petId: pet.id, ...finalPoint });
-      await window.deskbuddy.pet.endDrag(pet.id);
+      await window.deskprite.pet.moveDrag({ petId: pet.id, ...finalPoint });
+      await window.deskprite.pet.endDrag(pet.id);
     }
   } catch {
     // The next movement cycle will restore the idle state if the pet window closes mid-drag.
@@ -156,7 +156,7 @@ function scheduleWander() {
       if (wanderingStopped) return;
       let result = null;
       if (pointerId === null) {
-        result = await window.deskbuddy.pet.nudge(pet.id).catch(() => null);
+        result = await window.deskprite.pet.nudge(pet.id).catch(() => null);
       }
       if (wanderingStopped) return;
       const nextRetry = result && result.started === false ? Number(result.retryAfter) || 0 : 0;
@@ -169,7 +169,7 @@ function scheduleWander() {
 async function loadPet() {
   if (!petId) return;
   try {
-    pet = await window.deskbuddy.pet.get(petId);
+    pet = await window.deskprite.pet.get(petId);
     document.documentElement.style.setProperty('--pet-size', `${pet.size}px`);
     const idle = Array.isArray(pet.animations?.idle) && pet.animations.idle.length
       ? pet.animations.idle
@@ -181,7 +181,7 @@ async function loadPet() {
     playFrames(true);
     image.alt = pet.name;
     stage.setAttribute('aria-label', `${pet.name}. Drag to move it.`);
-    removeAnimationListener = window.deskbuddy.pet.onAnimationState(applyAnimation);
+    removeAnimationListener = window.deskprite.pet.onAnimationState(applyAnimation);
     scheduleWander();
   } catch {
     window.close();

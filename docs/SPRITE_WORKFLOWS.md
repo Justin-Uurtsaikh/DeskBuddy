@@ -1,10 +1,10 @@
-# DeskBuddy sprite workflow
+# Deskprite sprite workflow
 
-DeskBuddy does not generate art. Every buddy uses the frames that its creator imports or draws inside the app.
+Deskprite does not generate art. Every buddy uses the frames that its creator imports or draws inside the app.
 
 ## Import a sheet
 
-Export one **transparent PNG** with equally sized cells. After upload, DeskBuddy offers square-cell grid choices. Choose the grid that keeps one whole character in a cell, then configure the idle and walk rows, **starting columns**, and frame counts.
+Export one **transparent PNG** with equally sized cells. After upload, Deskprite offers square-cell grid choices. Choose the grid that keeps one whole character in a cell, then configure the idle and walk rows, **starting columns**, and frame counts.
 
 For example, this 4 × 2 arrangement gives both animations four frames:
 
@@ -17,7 +17,7 @@ The app crops each complete cell into a separate PNG, stores the idle and walk c
 
 ### Common layouts
 
-| Sheet | Choose in DeskBuddy | Clip settings |
+| Sheet | Choose in Deskprite | Clip settings |
 | --- | --- | --- |
 | Four-frame horizontal strip, `1024 × 256` | `4 × 1 · 256px` | Set both clips to row 1, start column 1, 4 frames when you have one loop. |
 | Dense `384 × 256` pixel-art sheet | `12 × 8 · 32px` | Pick the row and start column for one character's sequence; for a three-frame sequence, use 3 frames. |
@@ -32,7 +32,7 @@ The app crops each complete cell into a separate PNG, stores the idle and walk c
 
 If you only have an idle loop, set both the Idle row and Walk row to the same row, and give them the same starting column and frame count. The buddy will still move, using that animation for both states until you draw or import a dedicated walk loop.
 
-## Draw frames inside DeskBuddy
+## Draw frames inside Deskprite
 
 1. Choose **Draw your own**.
 2. Select `Idle`, draw frame 1, and use **Add frame** for additional idle poses.

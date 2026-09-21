@@ -1,26 +1,26 @@
-# DeskBuddy
+# Deskprite
 
-[![Quality checks](https://github.com/Justin-Uurtsaikh/DeskBuddy/actions/workflows/quality.yml/badge.svg)](https://github.com/Justin-Uurtsaikh/DeskBuddy/actions/workflows/quality.yml)
+[![Quality checks](https://github.com/Justin-Uurtsaikh/Deskprite/actions/workflows/quality.yml/badge.svg)](https://github.com/Justin-Uurtsaikh/Deskprite/actions/workflows/quality.yml)
 
-DeskBuddy is an open-source desktop sprite app by Justin Uurtsaikh. Import a transparent PNG sprite sheet or draw your own frames, then run the character with idle and walking animations on macOS or Windows.
+**Draw a buddy. Bring it to your desktop.** Deskprite is Justin Uurtsaikh's open-source app for drawing animated desktop buddies or importing transparent PNG sprite sheets on macOS and Windows.
 
-[Website](https://justin-uurtsaikh.github.io/DeskBuddy/) · [Transparent PNG sprite guide](https://justin-uurtsaikh.github.io/DeskBuddy/guide/) · [Download source](https://github.com/Justin-Uurtsaikh/DeskBuddy/archive/refs/heads/main.zip) · [Report an issue](https://github.com/Justin-Uurtsaikh/DeskBuddy/issues)
+[Website](https://justin-uurtsaikh.github.io/Deskprite/) · [Transparent PNG sprite guide](https://justin-uurtsaikh.github.io/Deskprite/guide/) · [Download source](https://github.com/Justin-Uurtsaikh/Deskprite/archive/refs/heads/main.zip) · [Report an issue](https://github.com/Justin-Uurtsaikh/Deskprite/issues)
 
 <picture>
-  <source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/deskbuddy-demo-still.png">
-  <img src="docs/assets/deskbuddy-demo.gif" alt="Sprout walking across the DeskBuddy desktop preview" width="640" height="360">
+  <source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/deskprite-demo-still.png">
+  <img src="docs/assets/deskprite-demo.gif" alt="Sprout walking across the Deskprite desktop preview" width="640" height="360">
 </picture>
 
 Built with Electron and JavaScript.
 
 ## Project website
 
-The [live DeskBuddy website](https://justin-uurtsaikh.github.io/DeskBuddy/) is published from [`docs/`](docs/index.html), with a dedicated [transparent PNG sprite and setup guide](https://justin-uurtsaikh.github.io/DeskBuddy/guide/). It uses plain HTML, CSS, and JavaScript with no build step or third-party assets.
+The [live Deskprite website](https://justin-uurtsaikh.github.io/Deskprite/) is published from [`docs/`](docs/index.html), with a dedicated [transparent PNG sprite and setup guide](https://justin-uurtsaikh.github.io/Deskprite/guide/). It uses plain HTML, CSS, and JavaScript with no build step or third-party assets.
 
 ## Run it on Mac or Windows
 
 1. Install [Node.js](https://nodejs.org/) (version 22.12 or later). On Mac, Electron 44 requires macOS 13 or later.
-2. Open Terminal (Mac) or PowerShell (Windows) in this `deskbuddy` folder.
+2. Open Terminal (Mac) or PowerShell (Windows) in this `deskprite` folder.
 3. Run:
 
    ```sh
@@ -40,12 +40,12 @@ Open **Starter buddies**, choose a character, adjust its name and size, then sel
 
 ### Import a sprite sheet
 
-DeskBuddy accepts transparent PNG sprite sheets with real transparent pixels.
+Deskprite accepts transparent PNG sprite sheets with real transparent pixels.
 After upload, it shows multiple square-cell grid choices such as `4 × 1 · 256px` or `12 × 8 · 32px`. Pick the one that puts one complete character in each cell, then choose each clip's row, starting column, and frame count. A common layout is four idle frames on row 1 and four walk frames on row 2.
 
-The source must be the clean PNG sprite sheet—not a screenshot with a checkerboard background, labels, grid lines, borders, or a white background. DeskBuddy's sprite validation and packaging currently support PNG files only.
+The source must be the clean PNG sprite sheet—not a screenshot with a checkerboard background, labels, grid lines, borders, or a white background. Deskprite's sprite validation and packaging currently support PNG files only.
 
-### Drawing a sprite in DeskBuddy
+### Drawing a sprite in Deskprite
 
 Switch to **Draw your own**. Choose your desired brush color and size, draw the current frame, then use **Add frame** for the next pose. Make at least one visible `Idle` frame and one visible `Walk` frame for it to create a sprite. Turn on **Previous frame** to see a semi-transparent onion-skin reference while drawing the next frame; it is never saved into your art.
 
@@ -63,7 +63,7 @@ On Windows, the portable `.exe` is created in `release/`. On a Mac, a `.dmg` is 
 
 ## App icon
 
-DeskBuddy uses Sprout's first idle frame for its app and Dock icon. If that source artwork changes, rebuild the icon with:
+Deskprite uses Sprout's first idle frame for its app and Dock icon. If that source artwork changes, rebuild the icon with:
 
 ```sh
 npm run icon
@@ -71,7 +71,7 @@ npm run icon
 
 ## Privacy and safety choices
 
-- Sprites are copied into DeskBuddy's private app-data folder; nothing is uploaded.
+- Sprites are copied into Deskprite's private app-data folder; nothing is uploaded.
 - Only PNGs with real transparent pixels and visible artwork are accepted.
 - Each source image is limited to 5 MB and 16 megapixels. Animation sets are limited to eight frames per clip and 12 MB total.
 - The renderer cannot access Node.js or your file system directly.

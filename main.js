@@ -21,8 +21,12 @@ const {
 const MAX_PETS = 30;
 const PET_ID = /^pet-[a-f0-9-]{20,}$/i;
 const APP_ICON_PATH = path.join(__dirname, 'build', 'icon.png');
+const APP_NAME = 'Deskprite';
+const STORE_FILE_NAME = 'deskprite-pets.json';
+const LEGACY_APP_NAME = ['Desk', 'Buddy'].join('');
+const LEGACY_STORE_FILE_NAME = ['desk', 'buddy-pets.json'].join('');
 
-app.setName('DeskBuddy');
+app.setName(APP_NAME);
 
 let creatorWindow = null;
 let tray = null;
@@ -49,11 +53,42 @@ let nextWanderStartAt = 0;
 let writeQueue = Promise.resolve();
 
 function appStorePath() {
-  return path.join(app.getPath('userData'), 'deskbuddy-pets.json');
+  return path.join(app.getPath('userData'), STORE_FILE_NAME);
 }
 
 function petAssetDirectory() {
   return path.join(app.getPath('userData'), 'pets');
+}
+
+async function migrateLegacyData() {
+  const targetStore = appStorePath();
+  try {
+    await fs.access(targetStore);
+    return;
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error;
+  }
+
+  const legacyDataDirectory = path.join(app.getPath('appData'), LEGACY_APP_NAME);
+  const legacyStore = path.join(legacyDataDirectory, LEGACY_STORE_FILE_NAME);
+  try {
+    await fs.access(legacyStore);
+  } catch (error) {
+    if (error?.code === 'ENOENT') return;
+    throw error;
+  }
+
+  const targetAssets = petAssetDirectory();
+  const legacyAssets = path.join(legacyDataDirectory, 'pets');
+  await fs.mkdir(app.getPath('userData'), { recursive: true });
+  if (path.resolve(legacyAssets) !== path.resolve(targetAssets)) {
+    try {
+      await fs.cp(legacyAssets, targetAssets, { recursive: true, force: false, errorOnExist: false });
+    } catch (error) {
+      if (error?.code !== 'ENOENT') throw error;
+    }
+  }
+  await fs.copyFile(legacyStore, targetStore);
 }
 
 function cleanAnimationFiles(value, petId) {
@@ -112,7 +147,7 @@ async function readStore() {
       corruptStoreBackup = `${appStorePath()}.backup-${Date.now()}.json`;
       await fs.copyFile(appStorePath(), corruptStoreBackup).catch(() => undefined);
     }
-    throw new Error('DeskBuddy could not read the saved-buddies file. A backup was kept instead of overwriting it.');
+    throw new Error('Deskprite could not read the saved-buddies file. A backup was kept instead of overwriting it.');
   }
 }
 
@@ -260,7 +295,7 @@ function notifyPetsChanged() {
 
 function onlyCreatorWindow(event) {
   if (!creatorWindow || creatorWindow.isDestroyed() || creatorWindow.webContents.id !== event.sender.id) {
-    throw new Error('This action is only available from the DeskBuddy collection window.');
+    throw new Error('This action is only available from the Deskprite collection window.');
   }
 }
 
@@ -282,7 +317,7 @@ function createCreatorWindow() {
     minHeight: 680,
     backgroundColor: '#1e2015',
     icon: app.isPackaged ? undefined : APP_ICON_PATH,
-    title: 'DeskBuddy',
+    title: 'Deskprite',
     show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -497,7 +532,7 @@ async function removePetAsset(pet) {
       }
     }));
   } catch {
-    throw new Error('DeskBuddy could not remove that saved sprite. Please try again.');
+    throw new Error('Deskprite could not remove that saved sprite. Please try again.');
   }
 }
 
@@ -519,7 +554,7 @@ async function writeAnimationAssets(id, animations) {
     await Promise.all(writtenFiles.map((fileName) => (
       fs.unlink(path.join(petAssetDirectory(), fileName)).catch(() => undefined)
     )));
-    throw new Error('DeskBuddy could not save those sprite frames. Please try again.');
+    throw new Error('Deskprite could not save those sprite frames. Please try again.');
   }
 }
 
@@ -641,7 +676,7 @@ ipcMain.handle('pets:create', async (event, input) => {
   try {
     await changeStore((nextStore) => {
       if (nextStore.pets.length >= MAX_PETS) {
-        throw new Error('DeskBuddy can keep up to 30 buddies. Delete one before adding another.');
+        throw new Error('Deskprite can keep up to 30 buddies. Delete one before adding another.');
       }
       nextStore.pets.push(pet);
     });
@@ -789,13 +824,13 @@ async function requestQuit() {
 
 function createTray() {
   tray = new Tray(createTrayIcon());
-  tray.setToolTip('DeskBuddy');
+  tray.setToolTip('Deskprite');
   tray.setContextMenu(Menu.buildFromTemplate([
-    { label: 'Open DeskBuddy', click: () => createCreatorWindow() },
+    { label: 'Open Deskprite', click: () => createCreatorWindow() },
     { label: 'Show all buddies', click: () => showAllPets().catch(() => undefined) },
     { label: 'Hide all buddies', click: () => hideAllPets().catch(() => undefined) },
     { type: 'separator' },
-    { label: 'Quit DeskBuddy', click: () => requestQuit() },
+    { label: 'Quit Deskprite', click: () => requestQuit() },
   ]));
   tray.on('click', () => createCreatorWindow());
 }
@@ -806,6 +841,7 @@ app.whenReady().then(async () => {
       const dockIcon = nativeImage.createFromPath(APP_ICON_PATH);
       if (!dockIcon.isEmpty()) app.dock.setIcon(dockIcon);
     }
+    await migrateLegacyData();
     await ensureStore();
     session.defaultSession.setPermissionCheckHandler(() => false);
     session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false));
@@ -816,8 +852,8 @@ app.whenReady().then(async () => {
     app.on('activate', () => createCreatorWindow());
   } catch (error) {
     dialog.showErrorBox(
-      'DeskBuddy could not start',
-      friendlyErrorMessage(error, 'DeskBuddy could not access its local storage.'),
+      'Deskprite could not start',
+      friendlyErrorMessage(error, 'Deskprite could not access its local storage.'),
     );
     app.quit();
   }

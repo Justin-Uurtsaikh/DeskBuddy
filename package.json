@@ -1,15 +1,15 @@
 {
-  "name": "deskbuddy",
+  "name": "deskprite",
   "version": "0.3.2",
-  "description": "Create animated desktop sprites from transparent PNG sprite sheets or frames drawn in DeskBuddy.",
+  "description": "Draw animated desktop buddies or import transparent PNG sprite sheets with Deskprite.",
   "author": "Justin Uurtsaikh",
-  "homepage": "https://justin-uurtsaikh.github.io/DeskBuddy/",
+  "homepage": "https://justin-uurtsaikh.github.io/Deskprite/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Justin-Uurtsaikh/DeskBuddy.git"
+    "url": "git+https://github.com/Justin-Uurtsaikh/Deskprite.git"
   },
   "bugs": {
-    "url": "https://github.com/Justin-Uurtsaikh/DeskBuddy/issues"
+    "url": "https://github.com/Justin-Uurtsaikh/Deskprite/issues"
   },
   "keywords": [
     "electron",
@@ -39,9 +39,9 @@
     "electron-builder": "^26.0.12"
   },
   "build": {
-    "appId": "com.deskbuddy.app",
-    "productName": "DeskBuddy",
-    "artifactName": "DeskBuddy-${version}-portable.${ext}",
+    "appId": "com.deskprite.app",
+    "productName": "Deskprite",
+    "artifactName": "Deskprite-${version}-portable.${ext}",
     "directories": {
       "output": "release"
     },

@@ -7,7 +7,7 @@ function invoke(channel, ...args) {
 const isPetWindow = new URL(window.location.href).pathname.endsWith('/pet.html');
 
 if (isPetWindow) {
-  contextBridge.exposeInMainWorld('deskbuddy', {
+  contextBridge.exposeInMainWorld('deskprite', {
     pet: {
       get: (petId) => invoke('pet:get', petId),
       startDrag: (payload) => invoke('pet:drag-start', payload),
@@ -23,7 +23,7 @@ if (isPetWindow) {
     },
   });
 } else {
-  contextBridge.exposeInMainWorld('deskbuddy', {
+  contextBridge.exposeInMainWorld('deskprite', {
     listPets: () => invoke('pets:list'),
     validateImage: (imageData) => invoke('pets:validate-image', imageData),
     createPet: (input) => invoke('pets:create', input),

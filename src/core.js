@@ -1,7 +1,7 @@
-(function attachDeskBuddyCore(root, factory) {
+(function attachDeskpriteCore(root, factory) {
   const core = factory();
   if (typeof module === 'object' && module.exports) module.exports = core;
-  else root.DeskBuddyCore = core;
+  else root.DeskpriteCore = core;
 }(typeof globalThis === 'undefined' ? this : globalThis, () => {
   'use strict';
 
@@ -16,9 +16,9 @@
 
   const ERROR_MESSAGES = Object.freeze({
     choosePng: 'Choose a PNG image first.',
-    wrongFileType: 'Choose a PNG file. DeskBuddy does not support JPG or WebP files.',
+    wrongFileType: 'Choose a PNG file. Deskprite does not support JPG or WebP files.',
     imageTooLarge: 'This image is too large.',
-    unreadablePng: "DeskBuddy couldn't read this PNG. Try exporting it again.",
+    unreadablePng: "Deskprite couldn't read this PNG. Try exporting it again.",
     noTransparentBackground: 'This PNG has no transparent background.',
     blankFrame: 'This sprite frame is blank. Draw or import a visible character.',
     missingAnimationFrames: 'Choose at least one idle and one walking frame.',
@@ -31,7 +31,7 @@
     /^Choose valid rows and frames for this sprite sheet\.$/,
     /^Choose a grid that gives every frame the same square canvas\.$/,
     /^That sprite sheet could not be read\. Try another one\.$/,
-    /^DeskBuddy could not (?:inspect that PNG|split that sprite sheet)\.$/,
+    /^Deskprite could not (?:inspect that PNG|split that sprite sheet)\.$/,
     /^(?:Columns|Rows|Idle frames|Idle start column|Idle row|Walk frames|Walk start column|Walk row) must be between \d+ and \d+\.$/,
     /^Choose a square cell grid above before making your buddy\.$/,
     /^Each frame must be at least 16 × 16 pixels and no larger than 4 megapixels\.$/,
@@ -40,12 +40,12 @@
     /^[A-Za-z][A-Za-z0-9 -]{0,35}'s sprite frames are missing transparency\.$/,
     /^Choose a starter buddy first\.$/,
     /^Choose a transparent PNG sprite sheet first\.$/,
-    /^DeskBuddy could not read the saved-buddies file\. A backup was kept instead of overwriting it\.$/,
+    /^Deskprite could not read the saved-buddies file\. A backup was kept instead of overwriting it\.$/,
     /^That buddy could not be found\.$/,
-    /^This action is only available from the DeskBuddy collection window\.$/,
+    /^This action is only available from the Deskprite collection window\.$/,
     /^This action is not available\.$/,
-    /^DeskBuddy could not (?:remove that saved sprite|save those sprite frames)\. Please try again\.$/,
-    /^DeskBuddy can keep up to 30 buddies\. Delete one before adding another\.$/,
+    /^Deskprite could not (?:remove that saved sprite|save those sprite frames)\. Please try again\.$/,
+    /^Deskprite can keep up to 30 buddies\. Delete one before adding another\.$/,
   ]);
 
   function clamp(value, minimum, maximum) {

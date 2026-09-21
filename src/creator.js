@@ -5,7 +5,7 @@ const {
   validateAnimationFrameCounts,
   frameRect,
   friendlyErrorMessage,
-} = window.DeskBuddyCore;
+} = window.DeskpriteCore;
 const MAX_SHEET_COLUMNS = 32;
 const MAX_SHEET_ROWS = 32;
 const DRAW_SIZE = 160;
@@ -161,7 +161,7 @@ function loadImage(imageData) {
   return new Promise((resolve, reject) => {
     const source = new Image();
     source.onload = () => resolve(source);
-    source.onerror = () => reject(new Error('DeskBuddy could not inspect that PNG.'));
+    source.onerror = () => reject(new Error('Deskprite could not inspect that PNG.'));
     source.src = imageData;
   });
 }
@@ -172,7 +172,7 @@ async function pixelsIn(imageData, predicate) {
   probe.width = source.naturalWidth;
   probe.height = source.naturalHeight;
   const probeContext = probe.getContext('2d', { willReadFrequently: true });
-  if (!probeContext) throw new Error('DeskBuddy could not inspect that PNG.');
+  if (!probeContext) throw new Error('Deskprite could not inspect that PNG.');
   probeContext.drawImage(source, 0, 0);
   const pixels = probeContext.getImageData(0, 0, probe.width, probe.height).data;
   for (let index = 3; index < pixels.length; index += 4) {
@@ -315,7 +315,7 @@ async function splitSpriteSheet(imageData, layoutOverride = null) {
       frame.width = frameWidth;
       frame.height = frameHeight;
       const frameContext = frame.getContext('2d');
-      if (!frameContext) throw new Error('DeskBuddy could not split that sprite sheet.');
+      if (!frameContext) throw new Error('Deskprite could not split that sprite sheet.');
       frameContext.drawImage(
         source,
         sourceFrame.x,
@@ -435,7 +435,7 @@ async function useFile(file) {
   try {
     validateUploadMetadata(file);
     const imageData = await readFile(file);
-    const details = await window.deskbuddy.validateImage(imageData);
+    const details = await window.deskprite.validateImage(imageData);
     if (!await imageHasTransparentPixels(imageData)) {
       throw new Error(ERROR_MESSAGES.noTransparentBackground);
     }
@@ -667,12 +667,12 @@ function makePetCard(pet) {
   const actions = document.createElement('div');
   actions.className = 'card-actions';
   actions.append(
-    button('Show', 'show-button', () => window.deskbuddy.launchPet(pet.id).catch(showError)),
-    button('Hide', 'hide-button', () => window.deskbuddy.hidePet(pet.id).catch(showError)),
+    button('Show', 'show-button', () => window.deskprite.launchPet(pet.id).catch(showError)),
+    button('Hide', 'hide-button', () => window.deskprite.hidePet(pet.id).catch(showError)),
     button('Delete', 'delete-button', async () => {
       if (!window.confirm(`Delete ${pet.name}? This removes all of its saved sprite frames.`)) return;
       try {
-        await window.deskbuddy.deletePet(pet.id);
+        await window.deskprite.deletePet(pet.id);
         await refreshPets();
       } catch (error) {
         showError(error);
@@ -690,7 +690,7 @@ function showError(error) {
 
 async function refreshPets() {
   try {
-    const pets = await window.deskbuddy.listPets();
+    const pets = await window.deskprite.listPets();
     petList.replaceChildren(...pets.map(makePetCard));
     emptyState.hidden = pets.length > 0;
     buddyCount.textContent = `${pets.length} ${pets.length === 1 ? 'buddy' : 'buddies'}`;
@@ -830,7 +830,7 @@ form.addEventListener('submit', async (event) => {
     } else {
       animations = await exportedDrawingAnimations();
     }
-    await window.deskbuddy.createPet({
+    await window.deskprite.createPet({
       animations,
       name: requestedName,
       size: requestedSize,
@@ -846,7 +846,7 @@ form.addEventListener('submit', async (event) => {
   }
 });
 
-window.deskbuddy.onPetsChanged(refreshPets);
+window.deskprite.onPetsChanged(refreshPets);
 updatePreviewName();
 updateDrawingUI();
 loadActiveFrame().catch(showError);

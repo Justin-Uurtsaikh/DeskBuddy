@@ -247,7 +247,7 @@ test('the shared browser core loads before both renderer scripts', () => {
   const browserContext = {};
   vm.createContext(browserContext);
   vm.runInContext(source, browserContext);
-  assert.equal(browserContext.DeskBuddyCore.normalizePetSize(20), 64);
+  assert.equal(browserContext.DeskpriteCore.normalizePetSize(20), 64);
 
   const creatorHtml = fs.readFileSync(path.join(__dirname, '..', 'src', 'creator.html'), 'utf8');
   const petHtml = fs.readFileSync(path.join(__dirname, '..', 'src', 'pet.html'), 'utf8');

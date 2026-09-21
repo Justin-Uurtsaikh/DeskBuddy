@@ -6,8 +6,8 @@ const zlib = require('node:zlib');
 
 const projectRoot = path.resolve(__dirname, '..');
 const spritePath = path.join(projectRoot, 'src', 'assets', 'presets', 'sprout-sheet.png');
-const outputPath = path.join(projectRoot, 'docs', 'assets', 'deskbuddy-demo.gif');
-const stillOutputPath = path.join(projectRoot, 'docs', 'assets', 'deskbuddy-demo-still.png');
+const outputPath = path.join(projectRoot, 'docs', 'assets', 'deskprite-demo.gif');
+const stillOutputPath = path.join(projectRoot, 'docs', 'assets', 'deskprite-demo-still.png');
 const PNG_SIGNATURE = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
 
 const WIDTH = 640;
@@ -203,7 +203,7 @@ function renderDesktop() {
   fillRect(image, 16, 18, 8, 8, COLORS.cedar);
   fillRect(image, 31, 18, 8, 8, COLORS.gold);
   fillRect(image, 46, 18, 8, 8, COLORS.moss);
-  drawText(image, 'DESKBUDDY / SPROUT', 70, 16, 2, COLORS.paper);
+  drawText(image, 'DESKPRITE / SPROUT', 70, 16, 2, COLORS.paper);
 
   for (let x = 7; x < WIDTH - 7; x += 32) fillRect(image, x, 38, 1, HEIGHT - 45, COLORS.moss);
   for (let y = 38; y < HEIGHT - 7; y += 32) fillRect(image, 7, y, WIDTH - 14, 1, COLORS.moss);
