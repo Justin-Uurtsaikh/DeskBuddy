@@ -546,16 +546,6 @@ h3 {
   height: 100%;
 }
 
-.demo-pet__shadow {
-  position: absolute;
-  z-index: 0;
-  right: 19%;
-  bottom: 6px;
-  left: 19%;
-  height: 9px;
-  background: rgba(22, 11, 8, 0.48);
-}
-
 .demo-pet.is-facing-left .demo-pet__sprite {
   transform: scaleX(-1);
 }
