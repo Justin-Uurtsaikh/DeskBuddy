@@ -505,8 +505,9 @@ h3 {
   background-image:
     linear-gradient(rgba(30, 32, 21, 0.12) 2px, transparent 2px),
     linear-gradient(90deg, rgba(30, 32, 21, 0.12) 2px, transparent 2px),
+    linear-gradient(125deg, rgba(242, 235, 139, 0.32), transparent 42%),
     linear-gradient(0deg, var(--moss) 0 25%, transparent 25%);
-  background-size: 32px 32px, 32px 32px, 100% 100%;
+  background-size: 32px 32px, 32px 32px, 100% 100%, 100% 100%;
   border: 8px solid var(--bark);
 }
 
@@ -518,6 +519,137 @@ h3 {
   height: 4px;
   content: "";
   background: var(--forest-black);
+}
+
+.demo-scenery {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.demo-bamboo {
+  position: absolute;
+  bottom: 25%;
+  left: 18px;
+  width: 104px;
+  height: 68%;
+  opacity: 0.68;
+}
+
+.demo-bamboo--right {
+  right: 18px;
+  left: auto;
+  width: 72px;
+  height: 53%;
+  opacity: 0.5;
+  transform: scaleX(-1);
+}
+
+.demo-bamboo i {
+  position: absolute;
+  bottom: 0;
+  display: block;
+  width: 10px;
+  height: 74%;
+  background: repeating-linear-gradient(to bottom, var(--sage) 0 25px, var(--pine) 25px 29px);
+  border-inline: 2px solid var(--moss);
+}
+
+.demo-bamboo i:nth-child(1) {
+  left: 10px;
+}
+
+.demo-bamboo i:nth-child(2) {
+  left: 43px;
+  height: 100%;
+}
+
+.demo-bamboo i:nth-child(3) {
+  left: 76px;
+  height: 61%;
+}
+
+.demo-bamboo i::before,
+.demo-bamboo i::after {
+  position: absolute;
+  width: 28px;
+  height: 16px;
+  content: "";
+  background: var(--pine);
+  clip-path: polygon(0 58%, 38% 0, 100% 8%, 78% 72%, 34% 100%);
+}
+
+.demo-bamboo i::before {
+  top: 24%;
+  left: 6px;
+}
+
+.demo-bamboo i::after {
+  top: 52%;
+  right: 6px;
+  background: var(--moss);
+  transform: scaleX(-1);
+}
+
+.demo-flowers {
+  position: absolute;
+  z-index: 2;
+  bottom: calc(25% - 1px);
+  left: 116px;
+  width: 94px;
+  height: 48px;
+}
+
+.demo-flowers--right {
+  right: 100px;
+  left: auto;
+  transform: scaleX(-1);
+}
+
+.demo-flowers i {
+  position: absolute;
+  bottom: 0;
+  display: block;
+  width: 4px;
+  height: 24px;
+  background: var(--pine);
+}
+
+.demo-flowers i:nth-child(1) { left: 10px; height: 19px; }
+.demo-flowers i:nth-child(2) { left: 43px; height: 31px; }
+.demo-flowers i:nth-child(3) { left: 76px; height: 23px; }
+
+.demo-flowers i::before {
+  position: absolute;
+  top: -3px;
+  left: -1px;
+  width: 6px;
+  height: 6px;
+  content: "";
+  background: var(--sunbeam);
+  box-shadow:
+    0 -6px 0 var(--petal-coral),
+    6px 0 0 var(--petal-coral),
+    0 6px 0 var(--petal-coral),
+    -6px 0 0 var(--petal-coral);
+}
+
+.demo-flowers i:nth-child(2)::before {
+  box-shadow:
+    0 -6px 0 var(--petal-peach),
+    6px 0 0 var(--petal-peach),
+    0 6px 0 var(--petal-peach),
+    -6px 0 0 var(--petal-peach);
+}
+
+.demo-flowers i:nth-child(3)::before {
+  box-shadow:
+    0 -6px 0 var(--petal-cream),
+    6px 0 0 var(--petal-cream),
+    0 6px 0 var(--petal-cream),
+    -6px 0 0 var(--petal-cream);
 }
 
 .demo-pet {
@@ -1235,6 +1367,24 @@ h3 {
     height: 82px;
   }
 
+  .demo-bamboo--right,
+  .demo-flowers--right {
+    display: none;
+  }
+
+  .demo-bamboo--left {
+    left: -8px;
+    width: 88px;
+    opacity: 0.48;
+  }
+
+  .demo-flowers--left {
+    left: 68px;
+    opacity: 0.72;
+    transform: scale(0.82);
+    transform-origin: bottom left;
+  }
+
   .demo-caption {
     align-items: flex-start;
     flex-direction: column;
@@ -1335,7 +1485,8 @@ h3 {
 }
 
 @media (forced-colors: active) {
-  .garden-frame {
+  .garden-frame,
+  .demo-scenery {
     display: none;
   }
 
@@ -1347,6 +1498,7 @@ h3 {
 
 @media print {
   .garden-frame,
+  .demo-scenery,
   .site-header,
   .site-footer,
   .guide-sidebar,

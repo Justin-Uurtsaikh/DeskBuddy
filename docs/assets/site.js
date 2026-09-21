@@ -8,6 +8,7 @@
   const pet = document.querySelector("#demo-pet");
   const motionToggle = document.querySelector("#motion-toggle");
   const moveDuration = 2100;
+  const wanderInterval = 8000;
   let wanderTimer;
   let stopTimer;
   let currentPosition = 0;
@@ -15,11 +16,9 @@
 
   const wanderPositions = [
     { x: 65, y: 68 },
-    { x: 78, y: 48 },
-    { x: 48, y: 72 },
-    { x: 28, y: 68 },
-    { x: 54, y: 51 },
-    { x: 73, y: 75 }
+    { x: 58, y: 70 },
+    { x: 68, y: 67 },
+    { x: 62, y: 72 }
   ];
 
   function setToggleState() {
@@ -62,7 +61,7 @@
   function startWandering() {
     stopWandering();
     if (motionPaused || reducedMotion.matches) return;
-    wanderTimer = window.setInterval(wander, 3600);
+    wanderTimer = window.setInterval(wander, wanderInterval);
   }
 
   if (stage && pet && motionToggle) {
@@ -75,12 +74,14 @@
       const x = Math.max(12, Math.min(88, ((event.clientX - bounds.left) / bounds.width) * 100));
       const y = Math.max(19, Math.min(82, ((event.clientY - bounds.top) / bounds.height) * 100));
       movePet(x, y);
+      startWandering();
     });
 
     stage.addEventListener("keydown", (event) => {
       if (event.key !== "Enter" && event.key !== " ") return;
       event.preventDefault();
       wander();
+      startWandering();
     });
 
     pet.addEventListener("transitionend", (event) => {

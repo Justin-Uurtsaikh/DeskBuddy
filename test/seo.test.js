@@ -18,6 +18,9 @@ test('public pages identify Deskprite, Justin, and transparent PNG sprites', () 
   assert.match(home, /<script type="application\/ld\+json">/);
   assert.doesNotMatch(home, /class="walkthrough-demo"/);
   assert.doesNotMatch(home, /demo-pet__shadow/);
+  assert.match(home, /class="demo-scenery" aria-hidden="true"/);
+  assert.match(home, /demo-bamboo/);
+  assert.match(home, /demo-flowers/);
   assert.match(home, /transparent PNG sprite sheet/);
   assert.doesNotMatch(home, /noindex/i);
 
@@ -30,10 +33,16 @@ test('the homepage Sprout demo glides smoothly and respects reduced motion', () 
   const css = read('docs/assets/site.css');
   const script = read('docs/assets/site.js');
   const petRule = css.match(/\.demo-pet\s*\{([^}]+)\}/)?.[1];
+  const sceneryRule = css.match(/\.demo-scenery\s*\{([^}]+)\}/)?.[1];
+  const wanderInterval = Number(script.match(/const wanderInterval = (\d+);/)?.[1]);
 
   assert.ok(petRule, 'expected the demo pet CSS rule');
+  assert.ok(sceneryRule, 'expected the demo scenery CSS rule');
   assert.match(petRule, /transition:\s*left[^;]+,\s*top[^;]+;/);
   assert.doesNotMatch(petRule, /steps\(/);
+  assert.match(sceneryRule, /pointer-events:\s*none/);
+  assert.ok(wanderInterval >= 7000, 'expected calmer automatic wandering');
+  assert.match(script, /window\.setInterval\(wander, wanderInterval\)/);
   assert.match(script, /pet\.addEventListener\("transitionend"/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]+transition-duration: 0\.001ms !important;/);
 });
