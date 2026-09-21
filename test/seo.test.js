@@ -25,6 +25,18 @@ test('public pages identify Deskprite, Justin, and transparent PNG sprites', () 
   assert.doesNotMatch(guide, /noindex/i);
 });
 
+test('the homepage Sprout demo glides smoothly and respects reduced motion', () => {
+  const css = read('docs/assets/site.css');
+  const script = read('docs/assets/site.js');
+  const petRule = css.match(/\.demo-pet\s*\{([^}]+)\}/)?.[1];
+
+  assert.ok(petRule, 'expected the demo pet CSS rule');
+  assert.match(petRule, /transition:\s*left[^;]+,\s*top[^;]+;/);
+  assert.doesNotMatch(petRule, /steps\(/);
+  assert.match(script, /pet\.addEventListener\("transitionend"/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]+transition-duration: 0\.001ms !important;/);
+});
+
 test('structured data describes the visible software offer without fake reviews', () => {
   const home = read('docs/index.html');
   const jsonLdMatch = home.match(/<script type="application\/ld\+json">([^<]+)<\/script>/);

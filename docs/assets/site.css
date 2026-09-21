@@ -528,7 +528,8 @@ h3 {
   width: 100px;
   height: 100px;
   transform: translate(-50%, -50%);
-  transition: left 1.35s steps(8), top 1.35s steps(8);
+  transition: left 2.1s ease-in-out, top 2.1s ease-in-out;
+  will-change: left, top;
 }
 
 .demo-pet__sprite {

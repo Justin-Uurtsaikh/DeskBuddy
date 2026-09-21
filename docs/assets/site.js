@@ -7,6 +7,7 @@
   const stage = document.querySelector("#demo-stage");
   const pet = document.querySelector("#demo-pet");
   const motionToggle = document.querySelector("#motion-toggle");
+  const moveDuration = 2100;
   let wanderTimer;
   let stopTimer;
   let currentPosition = 0;
@@ -32,7 +33,9 @@
 
   function movePet(x, y) {
     if (!pet) return;
-    const oldX = Number(pet.dataset.x || 65);
+    const stageBounds = stage.getBoundingClientRect();
+    const petBounds = pet.getBoundingClientRect();
+    const oldX = ((petBounds.left + petBounds.width / 2 - stageBounds.left) / stageBounds.width) * 100;
     pet.classList.toggle("is-facing-left", x < oldX);
     pet.dataset.x = String(x);
     pet.style.left = String(x) + "%";
@@ -41,7 +44,7 @@
     pet.classList.remove("is-walking");
     if (!motionPaused) {
       pet.classList.add("is-walking");
-      stopTimer = window.setTimeout(() => pet.classList.remove("is-walking"), 1380);
+      stopTimer = window.setTimeout(() => pet.classList.remove("is-walking"), moveDuration + 80);
     }
   }
 
@@ -80,11 +83,18 @@
       wander();
     });
 
+    pet.addEventListener("transitionend", (event) => {
+      if (event.target !== pet || (event.propertyName !== "left" && event.propertyName !== "top")) return;
+      window.clearTimeout(stopTimer);
+      pet.classList.remove("is-walking");
+    });
+
     motionToggle.addEventListener("click", () => {
       motionPaused = !motionPaused;
       setToggleState();
       if (motionPaused) {
         stopWandering();
+        window.clearTimeout(stopTimer);
         pet.classList.remove("is-walking");
       } else {
         wander();
@@ -95,8 +105,13 @@
     reducedMotion.addEventListener("change", (event) => {
       motionPaused = event.matches;
       setToggleState();
-      if (motionPaused) stopWandering();
-      else startWandering();
+      if (motionPaused) {
+        stopWandering();
+        window.clearTimeout(stopTimer);
+        pet.classList.remove("is-walking");
+      } else {
+        startWandering();
+      }
     });
   }
 
