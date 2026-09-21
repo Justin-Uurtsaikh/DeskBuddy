@@ -16,7 +16,7 @@ test('public pages identify Deskprite, Justin, and transparent PNG sprites', () 
   assert.match(home, /<title>Deskprite — Draw and Animate PNG Desktop Sprites<\/title>/);
   assert.match(home, /name="author" content="Justin Uurtsaikh"/);
   assert.match(home, /<script type="application\/ld\+json">/);
-  assert.match(home, /<img src="assets\/deskprite-demo\.gif" alt="Sprout walking across a desktop in Deskprite"/);
+  assert.doesNotMatch(home, /class="walkthrough-demo"/);
   assert.match(home, /transparent PNG sprite sheet/);
   assert.doesNotMatch(home, /noindex/i);
 
